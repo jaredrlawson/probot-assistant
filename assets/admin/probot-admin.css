@@ -1,0 +1,144 @@
+/* ProBot Admin UI (mobile-first, overflow-safe) */
+
+/* Layout shells */
+.pbot-wrap { max-width: 1020px; }
+.pbot-card{
+  background:#fff; border:1px solid #dcdcde; border-radius:8px;
+  padding:16px; margin:18px 0; overflow:hidden;
+}
+
+/* Rows */
+.pbot-row{
+  display:flex; gap:14px; align-items:center; flex-wrap:wrap; min-width:0;
+}
+.pbot-row + .pbot-row{ margin-top:12px; }
+
+/* === Scope wide input widths ONLY to Settings page ===
+   IMPORTANT: do NOT widen number fields here. */
+.pbot-settings .pbot-row input[type="text"],
+.pbot-settings .pbot-row .regular-text{
+  max-width:100%; width:min(520px,100%);
+  min-width:0;
+}
+
+/* Compact swatches + ultra-tight number fields */
+.pbot-swatch-input{ width:220px !important; max-width:100%; }
+
+/* Ultra-tight number inputs — base classes */
+.pbot-num-short { width:55px !important; text-align:right; padding:1px 3px; }
+.pbot-num-mid   { width:70px !important; text-align:right; padding:1px 3px; }
+
+/* Tiny margin before helper text */
+.pbot-settings .pbot-row input[type="number"]{ margin-right:4px; }
+
+/* Targeted tightening (IDs) */
+#pbot_match_threshold{ width:60px !important; text-align:right; padding:1px 3px; }
+#pbot_teaser_show_count{ width:42px !important; text-align:right; padding:1px 3px; }
+#pbot_teaser_duration_ms{ width:70px !important; text-align:right; padding:1px 3px; }
+#pbot_greeting_delay_ms{ width:70px !important; text-align:right; padding:1px 3px; }
+
+/* Specific single-line textfield (toast message) */
+#pbot_teaser_message{
+  width:min(520px,100%) !important;
+  white-space:nowrap; text-overflow:ellipsis; overflow:hidden;
+}
+
+/* Muted + mono text */
+.pbot-muted{ color:#555; }
+.pbot-mono{ font-family:Menlo,Consolas,Monaco,monospace; }
+
+/* Textareas */
+textarea.pbot-json{ width:100%; min-height:260px; }
+.pbot-preview{ margin-top:12px; }
+.pbot-preview textarea{ width:100%; min-height:140px; }
+
+/* Raw JSON textarea — vertical scroll only, no sideways */
+.pbot-json-view{
+  width:100%;
+  min-height:160px;
+  max-height:360px;
+  overflow-y:auto;
+  overflow-x:hidden;
+  resize:vertical;
+  white-space:pre-wrap;
+  word-break:break-word;
+  font-family:Menlo,Consolas,Monaco,monospace;
+  font-size:13px; line-height:1.45;
+  padding:10px 12px;
+  border:1px solid #dcdcde; border-radius:6px;
+  background:#fff; box-sizing:border-box;
+}
+
+/* Actions bar */
+.pbot-actions-bar{
+  display:flex; gap:10px; margin-top:10px; flex-wrap:wrap; align-items:center; min-width:0;
+}
+.pbot-actions-bar .button,
+.pbot-actions-bar .button-primary{
+  flex:1 1 240px; max-width:100%; text-align:center; white-space:normal;
+}
+@media (min-width:700px){
+  .pbot-actions-bar .button,
+  .pbot-actions-bar .button-primary{ flex:0 0 auto; }
+}
+
+/* Fieldset */
+.pbot-fieldset{
+  margin:16px 0; padding:12px;
+  border:1px solid #e0e0e0; border-radius:8px;
+  min-width:0;
+}
+.pbot-fieldset > legend{ font-weight:600; padding:0 6px; }
+
+/* Code styles */
+.pbot-card code,
+.pbot-fieldset code{
+  background:#f4f5f7; border:1px solid #e6e7ea; border-radius:4px;
+  padding:0 .25em; font-family:Menlo,Consolas,Monaco,monospace;
+  white-space:normal; word-break:break-word; overflow-wrap:anywhere;
+}
+
+/* Details block spacing */
+details.pbot-details{ margin-top:8px; }
+
+/* Responsive columns helper */
+@media (max-width:900px){
+  .pbot-row{ flex-direction:column; align-items:stretch; }
+  .pbot-row > label:first-child{ margin-bottom:4px; }
+}
+
+/* Select preview width */
+select.pbot-select{ min-width:320px; max-width:100%; }
+
+/* Tighten headings inside cards */
+.pbot-card h2{ margin:0 0 10px; }
+.pbot-card h3{ margin:0 0 8px; }
+
+/* File inputs */
+.pbot-card input[type="file"]{ max-width:100%; }
+
+/* Admin notices inside our pages */
+.wrap .notice{ margin:12px 0; }
+
+/* Copy JSON button alignment */
+.pbot-copy-wrap{
+  display:flex; justify-content:flex-end; gap:8px; margin:6px 0 0;
+}
+
+/* Knowledge Base Quick Add columns */
+.pbot-kb-cols{ display:flex; gap:18px; flex-wrap:wrap; }
+.pbot-kb-col{ flex:1 1 420px; min-width:260px; }
+
+/* Halo & Pulse intensity slider values */
+#pbot_halo_intensity, #pbot_pulse_intensity { max-width:220px; }
+.pbot-halo-val, .pbot-pulse-val{
+  font-family:Menlo,Consolas,monospace;
+  font-size:13px; margin-left:6px; color:#333;
+  min-width:38px; text-align:right; display:inline-block;
+}
+
+/* Color picker row layout */
+.pbot-color-row .pbot-color{
+  width:42px; height:32px; padding:0; border:1px solid #d0d0d0; border-radius:6px;
+}
+.pbot-color-row .pbot-swatch-input{ width:220px !important; max-width:100%; }
