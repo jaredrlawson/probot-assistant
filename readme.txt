@@ -8,19 +8,25 @@ Stable tag: 1.5.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-ProBot Assistant is a front-end chat assistant for WordPress. It supports JSON-driven responses, fuzzy matching, teaser toast prompts, and mobile-first UX. Built for speed, flexibility, and monetization.
+ProBot Assistant is a lightweight, customizable **WordPress chatbot plugin**.  
+It gives your site a floating chat bubble, teaser toast, JSON-driven knowledge base,  
+and admin tools to manage responses — all mobile-first and responsive.
 
 == Description ==
 
 ProBot Assistant lets you add an interactive chat bubble to your site with:
-- 100% JSON-driven intents (manual or packaged)
-- Fuzzy matching of visitor input
-- Configurable greeting delays and teaser "toast" messages (duration & show count)
-- Mobile-first responsive design with keyboard/viewport safety
-- Admin interface for settings & knowledge base management (Quick Add, Set Greeting)
-- Color customization with native pickers + text inputs
-- Halo & pulse intensity controls
-- Built-in updater ready
+
+- 🟢 Floating chat bubble (left/right) with **pulse halo** and teaser toast
+- 🟢 JSON-driven knowledge base (packaged or manual upload)
+- 🟢 Manual Q/A editor with Import/Export in WP Admin
+- 🟢 Fuzzy matching (adjustable threshold)
+- 🟢 Greeting with typing delay effect
+- 🟢 Sound notifications (toggleable)
+- 🟢 **Mobile-first fullscreen** on phones, **desktop popup** on larger screens
+- 🟢 Color customization (bubble, halo, panel, toast) via pickers or CSS vars
+- 🟢 Halo & pulse intensity sliders
+- 🟢 Built-in GitHub self-updater (release-based)
+- 🟢 Article Writer **preview** (1.6.0 full rollout planned)
 
 Perfect for customer support, FAQs, lead gen, and beyond.
 
@@ -43,7 +49,19 @@ Yes. Use the native color pickers or paste values (hex/RGB/RGBA). You can also t
 
 == Changelog ==
 
-= 1.5.5 (Stable) =
+= 1.5.7-dev-testing (2025-08-27) =
+* Updater prefers **release asset ZIP** (`probot-assistant.zip`) over GitHub `zipball_url`.
+* Auto-reactivate plugin post-update if it was active prior.
+* Normalizes extracted folder name to `probot-assistant/` during update to avoid “Package could not be installed.”
+
+= 1.5.6-dev-stable (2025-08-24) =
+* Split admin into drop-ins:
+  - `admin-settings-register.php` + `admin-settings-page.php`
+  - `admin-knowledge-register.php` + `admin-knowledge-page.php`
+  - `admin-article-writer.php` (preview scaffold)
+* Admin JS: autosize helpers, color-picker sync, live slider readouts.
+
+= 1.5.5 (2025-08-20) =
 * **Stable milestone** 🎉
 * Native **color pickers** + text inputs for Bubble / Halo / Window.
 * **Halo intensity** and **Pulse intensity** sliders.
@@ -52,35 +70,71 @@ Yes. Use the native color pickers or paste values (hex/RGB/RGBA). You can also t
 * Admin notice banner: **“Settings saved.”**
 * Teaser toast positioning & desktop side fixes retained.
 * General polish and minor bug fixes.
+* Stronger halo pulse with soft glow.
+* Keyboard overlap fixes with `visualViewport` + CSS vars.
+* Non-linear halo intensity mapping for smoother feel.
+* Hardened scroll model (only message list scrolls).
 
-= 1.5.4 =
+= 1.5.4 (2025-08-18) =
+* Knowledge Base Import/Export JSON.
+* Wrapped raw JSON viewer + Copy JSON button.
+* Quick Add Q/A and Set Greeting (AJAX).
+* Intents preview dropdown.
 * Patch: Fixed admin **toast message input** overflowing off-screen on mobile.
 * Improved responsive CSS for settings panel.
 * Minor desktop design tweaks.
 * Groundwork for configurable toast frequency & custom text.
 
-= 1.5.3 =
+= 1.5.3 (2025-08-15) =
 * Folder structure cleanup (`/frontend`, `/admin`, `/json`).
 * Chat bubble icon hover/tap fix (no blue flash).
 * Send button redesign (rounded square, subtle push/hover).
 * Fixed “double-tap to send” on mobile.
 * Typing delay tuning: scales with reply length.
 * Close now fully resets chat session.
+* Cache-busting for front-end assets via `filemtime()`.
+* Admin notices for settings/responses saved.
 
-= 1.5.2 =
+= 1.5.2 (2025-08-12) =
 * Added `greeting_delay_ms` (minimum dots before greeting appears).
 * Improved fuzzy matching + JSON intent handling.
+* Teaser placement variables (`--teaser-gap-x`, `--teaser-gap-y`) in CSS.
+* Toast duration and show-count options.
 
-= 1.5.1 =
+= 1.5.1 (2025-08-10) =
 * Initial fuzzy match release.
 * JSON-driven intents (manual or packaged).
 * Basic admin settings + knowledge base UI.
+* Fuzzy matching fallback (Jaccard + Levenshtein).
+* Greeting typing delay setting.
 
-= 1.5.0 =
+= 1.5.0 (2025-08-01) =
 * Initial modern release: chat bubble, panel, teaser toast, admin pages.
+* Packaged JSON (`assets/json/intents.json`).
+* Mobile-first overlay; desktop popup.
+* Admin Settings screen (brand, halo, panel, sound, teaser).
 
-= 1.0.0 → 1.4.x (historical) =
-<!-- TODO: Paste your original 1.0.0–1.4.x notes here so we can merge them verbatim. -->
+= 1.4.0 (2025-07-20) =
+* Modernized chat bubble & icon buttons.
+* Added teaser toast default copy.
+
+= 1.3.0 (2025-07-10) =
+* More reliable scroll-to-bottom handling.
+* ARIA labels for accessibility.
+
+= 1.2.0 (2025-07-01) =
+* Better mobile keyboard handling.
+* Fixed chat input clipping.
+
+= 1.1.0 (2025-06-20) =
+* Admin options for brand title, bubble side, and toggles.
+* Typing dots animation.
+
+= 1.0.0 (2025-06-01) =
+* Floating bubble + chat panel.
+* Static responses.
+* Minimal CSS + vanilla JS.
+* WordPress plugin scaffolding.
 
 == Roadmap ==
 
@@ -91,11 +145,18 @@ Ongoing polish and UX tightening across 1.5.6 → 1.5.9 as needed to keep the fr
 - Article Writer (full): monthly/weekly/bi-weekly cadence locks by tier, title generation, 800–1000 words, optional AI category
 - License/Product key & OpenAI key integration (paid upgrades)
 - Additional pro UI refinements and update/notice improvements
+- Planned add-ons: lead capture, Square payments, dark mode
 
 == Upgrade Notice ==
+
+= 1.5.7-dev-testing =
+Improves updater reliability, prefers GitHub release asset, fixes “Package could not be installed.”
+
+= 1.5.6-dev-stable =
+Splits admin into modular drop-ins for easier maintenance.
 
 = 1.5.5 =
 Stable milestone. Color pickers, halo/pulse intensity, KB improvements, and admin “Settings saved” banner.
 
 = 1.5.4 =
-Fixes toast input overflow on mobile and minor design issues.
+Fixes toast input overflow on mobile and adds KB Import/Export.
