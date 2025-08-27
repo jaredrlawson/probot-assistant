@@ -292,19 +292,33 @@ add_action('admin_init', function () {
 });
 
 /* --------------------------------------------------------------------------
- * Includes
+ * Includes (drop-ins)
  * ----------------------------------------------------------------------- */
+
+/** Optional self-updater (load if present) */
 if ( file_exists( pbot_path('includes/class-pbot-self-updater.php') ) ) {
   require_once pbot_path('includes/class-pbot-self-updater.php');
 }
+
+/** SETTINGS (split: register + page) */
 require_once pbot_path('includes/admin-settings-register.php');
 require_once pbot_path('includes/admin-settings-page.php');
+
+/** KNOWLEDGE BASE (split: register + page) */
+require_once pbot_path('includes/admin-knowledge-register.php');
 require_once pbot_path('includes/admin-knowledge-page.php');
+
+/** ARTICLE WRITER (register first if present, then controller/view) */
+if ( file_exists( pbot_path('includes/article-writer-register.php') ) ) {
+  require_once pbot_path('includes/article-writer-register.php');
+}
 if ( file_exists( pbot_path('includes/admin-article-writer.php') ) ) {
   require_once pbot_path('includes/admin-article-writer.php');
-}
-if ( ! function_exists('probot_render_article_writer_page') ) {
-  function probot_render_article_writer_page(){
-    echo '<div class="wrap"><h1>Article Writer</h1><p>Placeholder page. Please ensure <code>includes/admin-article-writer.php</code> exists.</p></div>';
+} else {
+  // Fallback placeholder so the submenu callback won't fatal if file is missing
+  if ( ! function_exists('probot_render_article_writer_page') ) {
+    function probot_render_article_writer_page(){
+      echo '<div class="wrap"><h1>Article Writer</h1><p>Missing <code>includes/admin-article-writer.php</code>.</p></div>';
+    }
   }
 }
