@@ -2,7 +2,7 @@
 /**
  * Plugin Name: ProBot Assistant
  * Description: Front-end chat assistant with teaser, JSON intents (packaged or manual), fuzzy matching, and admin Knowledge Base manager.
- * Version: 1.5.7-dev-testing
+ * Version: 1.5.6-dev-stable
  * Author: Jared Я Lawson
  * License: GPLv2 or later
  */
@@ -292,46 +292,19 @@ add_action('admin_init', function () {
 });
 
 /* --------------------------------------------------------------------------
- * Includes (drop-ins)
+ * Includes
  * ----------------------------------------------------------------------- */
-
-// Optional self-updater (drop-in)
 if ( file_exists( pbot_path('includes/class-pbot-self-updater.php') ) ) {
   require_once pbot_path('includes/class-pbot-self-updater.php');
-
-  // Instantiate only in admin, only for users who can update plugins
-  add_action('admin_init', function () {
-    if ( ! is_admin() || ! current_user_can('update_plugins') ) return;
-    if ( ! class_exists('PBot_Self_Updater') ) return;
-
-    new PBot_Self_Updater([
-      'file' => PROBOT_FILE,
-      'slug' => plugin_basename(PROBOT_FILE), // probot-assistant/probot-assistant.php
-      'user' => 'jaredrlawson',
-      'repo' => 'probot-assistant',
-    ]);
-  });
 }
-
-/** SETTINGS (split: register + page) */
 require_once pbot_path('includes/admin-settings-register.php');
 require_once pbot_path('includes/admin-settings-page.php');
-
-/** KNOWLEDGE BASE (split: register + page) */
-require_once pbot_path('includes/admin-knowledge-register.php');
 require_once pbot_path('includes/admin-knowledge-page.php');
-
-/** ARTICLE WRITER (register first if present, then controller/view) */
-if ( file_exists( pbot_path('includes/article-writer-register.php') ) ) {
-  require_once pbot_path('includes/article-writer-register.php');
-}
 if ( file_exists( pbot_path('includes/admin-article-writer.php') ) ) {
   require_once pbot_path('includes/admin-article-writer.php');
-} else {
-  // Fallback placeholder so the submenu callback won't fatal if file is missing
-  if ( ! function_exists('probot_render_article_writer_page') ) {
-    function probot_render_article_writer_page(){
-      echo '<div class="wrap"><h1>Article Writer</h1><p>Missing <code>includes/admin-article-writer.php</code>.</p></div>';
-    }
+}
+if ( ! function_exists('probot_render_article_writer_page') ) {
+  function probot_render_article_writer_page(){
+    echo '<div class="wrap"><h1>Article Writer</h1><p>Placeholder page. Please ensure <code>includes/admin-article-writer.php</code> exists.</p></div>';
   }
 }
