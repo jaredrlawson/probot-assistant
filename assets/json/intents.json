@@ -1,0 +1,171 @@
+{
+  "version": "1.5.0",
+  "brand": "ProBot Assistant",
+  "updated": "2025-08-24T00:00:00Z",
+  "notes": "Self-onboarding guide for ProBot Assistant. Keep filename as intents.json for best compatibility.",
+  "help": "Need help fast? Ask me about features, setup, JSON format, fuzzy matching, teaser position, sound/pulse toggles, AI add-on, import/export, or troubleshooting.\nSite owners: go to WP Admin → ProBot Assistant to configure everything.",
+  "intents": [
+    {
+      "id": "on_open_greeting",
+      "triggers": ["__open__"],
+      "response": "Hey there! I’m your ProBot Assistant 🤖. I can walk you through features, setup, JSON formatting, teaser tuning, sounds/pulse, AI add‑ons, and more.\n\nTry: \"show me features\", \"how do I add content?\", \"json example\", \"what’s fuzzy matching?\", \"move the teaser\", \"enable AI\", or \"tell me a joke\".",
+      "suggested_replies": ["Show me features", "How do I add content?", "JSON example", "Tell me a joke"]
+    },
+    {
+      "id": "greeting",
+      "triggers": ["hello", "hi", "hey", "yo", "hiya", "good morning", "good evening", "good afternoon"],
+      "response": "👋 Hi! I’m your ProBot Assistant. Ask about features, setup, JSON format, fuzzy matching, teaser tuning, sound/pulse, AI add‑ons, importing/exporting JSON, or troubleshooting.\n\nWant a tour?",
+      "suggested_replies": ["Give me a tour", "Show me features", "How do I add content?"]
+    },
+    {
+      "id": "tour_start",
+      "triggers": ["give me a tour", "tour", "walk me through", "guide me", "getting started", "setup", "start"],
+      "response": "Here’s the fast tour:\n1) Upload your own intents.json or add Q&A manually in WP Admin → ProBot Assistant → Responses.\n2) Tune fuzzy matching in Settings (0.0–1.0).\n3) Style teaser/bubble in CSS (root vars).\n4) Optional: Enable AI fallback (paid add‑on) for unmatched questions.\n5) Use Import/Export to version your JSON.\n\nWant a JSON template to copy?",
+      "suggested_replies": ["JSON example", "How do I add content?", "What can you do?"]
+    },
+    {
+      "id": "features_overview",
+      "triggers": ["features", "what can you do", "show me features", "capabilities"],
+      "response": "✨ Core features:\n- Floating chat bubble (left/right) with pulse halo and teaser toast\n- Mobile‑first fullscreen, desktop popup\n- Upload/download JSON intent libraries\n- Manual Q&A editor in admin\n- Fuzzy matching (threshold adjustable)\n- Sound on reply, cache‑busting for assets\n- Clean scroll model (only messages list scrolls)\n\n💎 Add‑ons (optional): AI fallback (OpenAI), Square payments, security packs, lead capture flows.",
+      "suggested_replies": ["How do I add content?", "JSON example", "What’s fuzzy matching?"]
+    },
+    {
+      "id": "how_to_add_content",
+      "triggers": ["how do i add content", "add content", "add questions", "add responses", "customize", "configure"],
+      "response": "📋 Program me in two ways:\n1) Upload your own intents.json → WP Admin → ProBot Assistant → Responses → Import JSON (keep filename intents.json for consistency).\n2) Or paste/edit JSON in the Manual JSON box and Save Responses.\n\nUse Export anytime to back up your current JSON.",
+      "suggested_replies": ["JSON example", "Triggers best practices", "Show fuzzy matching"]
+    },
+    {
+      "id": "json_format_example",
+      "triggers": ["json example", "example json", "show json", "json format", "sample json"],
+      "response": "Here’s a clean template:\n{\n  \"version\": \"1.6.1\",\n  \"brand\": \"ProBot Assistant\",\n  \"intents\": [\n    {\n      \"id\": \"greeting\",\n      \"triggers\": [\"hello\", \"hi\"],\n      \"response\": \"Hi! Ask me about features, setup, or upgrades.\",\n      \"suggested_replies\": [\"Show me features\", \"How do I add content?\"]\n    },\n    {\n      \"id\": \"unknown\",\n      \"triggers\": [\"*\"],\n      \"response\": \"I didn’t catch that. Try asking about features, setup, or upgrades.\",\n      \"suggested_replies\": [\"Show me features\", \"How do I add content?\"]\n    }\n  ]\n}\nRemember to save as intents.json before uploading.",
+      "suggested_replies": ["Triggers best practices", "Show fuzzy matching"]
+    },
+    {
+      "id": "triggers_best_practices",
+      "triggers": ["triggers", "best practices", "synonyms", "keywords", "how do triggers work"],
+      "response": "Trigger tips:\n- Use lowercase words/phrases users actually type (e.g., \"hours\", \"pricing\", \"features\").\n- Add synonyms across intents to improve hits (\"pricing\", \"cost\", \"how much\").\n- Keep responses focused and scannable.\n- Include a catch‑all intent: id \"unknown\" with trigger \"*\".\n- You can use {{name}} and {{brand}} tokens in responses (they’ll be replaced).",
+      "suggested_replies": ["Show fuzzy matching", "JSON example"]
+    },
+    {
+      "id": "fuzzy_matching_explain",
+      "triggers": ["what’s fuzzy matching", "fuzzy matching", "match threshold", "threshold", "similarity"],
+      "response": "Fuzzy matching lets near‑matches still resolve to an intent. The threshold (0.0–1.0) controls strictness.\n- Lower (e.g., 0.40) = looser, more matches\n- Higher (e.g., 0.70) = stricter, fewer matches\nSet it in WP Admin → ProBot Assistant → Settings → Fuzzy match threshold. Default is 0.52.",
+      "suggested_replies": ["How do I add content?", "Move the teaser", "Enable AI"]
+    },
+    {
+      "id": "teaser_tuning",
+      "triggers": ["teaser position", "move teaser", "teaser offset", "teaser distance", "teaser closer", "teaser further", "teaser up", "teaser down"],
+      "response": "Tune the teaser in CSS with root variables (no JS edits):\n:root {\n  --teaser-gap-x: 10px;  // bigger = further horizontally from bubble\n  --teaser-gap-y: -6px;  // positive = down, negative = up\n}\nEdit your probot-assistant.css → :root. If changes don’t show, hard refresh and clear caches.",
+      "suggested_replies": ["Change bubble side", "Enable sound", "Pulse halo"]
+    },
+    {
+      "id": "bubble_side",
+      "triggers": ["change bubble side", "bubble left", "bubble right", "bubble position", "move bubble"],
+      "response": "Bubble side is an admin setting. Go to WP Admin → ProBot Assistant → Settings → Bubble position, choose Left or Right, then Save.",
+      "suggested_replies": ["Enable sound", "Pulse halo", "Show features"]
+    },
+    {
+      "id": "sound_toggle",
+      "triggers": ["enable sound", "disable sound", "notification sound", "ding", "sound on reply"],
+      "response": "Turn reply sounds on/off in WP Admin → ProBot Assistant → Settings → Visuals & Behavior → Sound on reply. Save and refresh.",
+      "suggested_replies": ["Pulse halo", "Move the teaser", "What’s fuzzy matching?"]
+    },
+    {
+      "id": "pulse_toggle",
+      "triggers": ["pulse", "pulse halo", "bubble pulse", "attention ring"],
+      "response": "Toggle the pulse halo in WP Admin → ProBot Assistant → Settings → Visuals & Behavior → Pulse halo. Great for drawing attention to the chat bubble.",
+      "suggested_replies": ["Enable sound", "Change bubble side"]
+    },
+    {
+      "id": "layouts",
+      "triggers": ["mobile fullscreen", "desktop popup", "layout", "responsive", "screen"],
+      "response": "Layout behavior:\n- Mobile: fullscreen, no rounded corners (focus on chat)\n- Desktop: popup with shadow and rounded corners\nThis is automatic via CSS breakpoints. You can customize widths/heights in CSS if needed.",
+      "suggested_replies": ["Scroll behavior", "Keyboard gap"]
+    },
+    {
+      "id": "scroll_model",
+      "triggers": ["scroll behavior", "scrolling", "lock scroll", "scroll lock", "only messages scroll"],
+      "response": "The overlay and panel never scroll; only the messages list scrolls. This keeps the header and input bar steady and avoids page jumps on mobile. If it feels stuck, ensure CSS height calc uses 100dvh and the input bar variables are set.",
+      "suggested_replies": ["Keyboard gap", "Troubleshooting"]
+    },
+    {
+      "id": "keyboard_gap",
+      "triggers": ["keyboard gap", "gap under input", "mobile keyboard", "typing area space"],
+      "response": "Mobile keyboards can overlap chat. The script measures the keyboard and sets CSS vars so the messages list stays visible. If spacing looks off, try rotating the device or briefly focusing the input to re‑measure, then test.",
+      "suggested_replies": ["Scroll behavior", "Troubleshooting"]
+    },
+    {
+      "id": "import_export",
+      "triggers": ["import json", "export json", "backup", "restore", "download intents"],
+      "response": "In WP Admin → ProBot Assistant → Responses you can Import a JSON file (switches source to Manual) or Export the current JSON. Tip: keep the filename as intents.json and use version control (e.g., save dated copies).",
+      "suggested_replies": ["JSON example", "How do I add content?"]
+    },
+    {
+      "id": "ai_addon",
+      "triggers": ["enable ai", "ai", "openai", "fallback", "paid", "upgrade ai"],
+      "response": "AI fallback (add‑on) lets me answer when the JSON has no match.\n- Configure in Settings when available\n- Costs apply (OpenAI usage)\n- Keep JSON for guaranteed answers; AI covers gaps and long‑tail questions\nThis is optional; the base plugin is fast and privacy‑friendly without AI.",
+      "suggested_replies": ["What upgrades are coming?", "Privacy"]
+    },
+    {
+      "id": "upgrades",
+      "triggers": ["upgrades", "addons", "paid", "pro", "what upgrades are coming"],
+      "response": "Planned/available add‑ons:\n- AI fallback (OpenAI)\n- Square payments in chat\n- Web security packs\n- Lead capture flows (name, email, phone → CRM)\nAll add‑ons are optional and modular.",
+      "suggested_replies": ["Enable AI", "Lead capture", "Payments"]
+    },
+    {
+      "id": "payments",
+      "triggers": ["payments", "square", "take payment", "collect payment"],
+      "response": "A Square payments add‑on is planned so you can take deposits or payments in chat (opt‑in, paid). Until then, you can direct users to a checkout page via a link.",
+      "suggested_replies": ["Lead capture", "Upgrades"]
+    },
+    {
+      "id": "lead_capture",
+      "triggers": ["lead capture", "collect lead", "form", "name email phone"],
+      "response": "Lead capture flows are planned as an add‑on. For now, you can include a response that instructs users to provide their info, then follow up manually or link to a form.",
+      "suggested_replies": ["Upgrades", "Privacy"]
+    },
+    {
+      "id": "privacy",
+      "triggers": ["privacy", "gdpr", "data", "data usage"],
+      "response": "Privacy basics:\n- The base plugin does not transmit chat to third parties by default.\n- If you enable AI fallback, requests go to the AI provider according to your configuration.\n- Always disclose to users if you collect personal info (leads).",
+      "suggested_replies": ["Enable AI", "Lead capture"]
+    },
+    {
+      "id": "troubleshooting",
+      "triggers": ["troubleshooting", "help me fix", "nothing changes", "cache issue", "teaser not moving", "buttons not aligned", "sound not playing"],
+      "response": "Try these steps:\n1) Hard refresh + clear caches/CDN.\n2) Confirm you edited the correct CSS file and saved it.\n3) For teaser: adjust :root → --teaser-gap-x and --teaser-gap-y (positive = down, negative = up).\n4) For sounds/pulse: check Settings → Visuals & Behavior.\n5) For buttons/header spacing: inspect CSS for .probot-actions in your theme.\n6) If JSON changes don’t show, Export to verify and re‑Import if needed.",
+      "suggested_replies": ["Move the teaser", "Enable sound", "Show features"]
+    },
+    {
+      "id": "fun_jokes",
+      "triggers": ["tell me a joke", "joke", "dad joke", "make me laugh"],
+      "response": "Here’s one: I told my website I needed some space — now it serves everything with padding! 😄\nNeed another?",
+      "suggested_replies": ["Another joke", "Knock knock", "Back to features"]
+    },
+    {
+      "id": "fun_jokes_more",
+      "triggers": ["another joke", "one more", "more jokes"],
+      "response": "Okay! Why did the CSS file break up with the HTML file? Too many class issues.\nWant a knock‑knock one?",
+      "suggested_replies": ["Knock knock", "Back to features"]
+    },
+    {
+      "id": "knock_knock",
+      "triggers": ["knock knock", "knock‑knock"],
+      "response": "Knock, knock.\nWho’s there?\nCache.\nCache who?\nCache me outside, how ’bout dat refresh! 😅",
+      "suggested_replies": ["Another joke", "Back to features"]
+    },
+    {
+      "id": "about",
+      "triggers": ["about", "who built you", "credits"],
+      "response": "I’m your ProBot Assistant — a lightweight, customizable WordPress chatbot. Configure me in WP Admin → ProBot Assistant. Swap in your own intents.json to make me brand‑specific.",
+      "suggested_replies": ["Show me features", "How do I add content?"]
+    },
+    {
+      "id": "unknown",
+      "triggers": ["*"],
+      "response": "I didn’t quite get that. Try asking about features, setup, JSON format, fuzzy matching, teaser tuning, sound/pulse, AI add‑ons, import/export, or troubleshooting.\nSite owners: upload a customized intents.json or use the Manual JSON editor in WP Admin → ProBot Assistant.",
+      "suggested_replies": ["Show me features", "How do I add content?", "JSON example"]
+    }
+  ]
+}
