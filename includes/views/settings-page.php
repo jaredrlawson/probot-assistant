@@ -2,6 +2,24 @@
 <div class="wrap pbot-wrap pbot-settings">
   <h1>ProBot Assistant — Settings</h1>
 
+  <?php
+  // Optional: let add-ons inject notices or sections above the card.
+  if (isset($ctx) && is_array($ctx)) {
+    do_action('pbot_admin_settings_top', $ctx);
+  } else {
+    // Build a minimal $ctx if this view is ever called directly (defensive)
+    $ctx = isset($ctx) && is_array($ctx) ? $ctx : compact(
+      'brand','pos','pulse','teaserT','sound','thresh','gDelay',
+      'brandColor','haloColor','panelColor',
+      'toastBg','toastFg','haloInt','pulseInt',
+      'toastMsg','toastMs','toastCount',
+      'openaiKey','productKey',
+      'btnBorderEnabled','btnBorderWeight','btnBorderColor',
+      'sendBorderEnabled','sendBorderWeight','sendBorderColor'
+    );
+  }
+  ?>
+
   <div class="pbot-card">
     <form method="post" action="options.php">
       <?php settings_fields('pbot_settings'); ?>
@@ -118,6 +136,11 @@
         </div>
       </fieldset>
 
+      <?php
+      // 🔌 Hook point for add-ons to inject fields BEFORE the Buttons section.
+      do_action('pbot_admin_settings_before_buttons', $ctx);
+      ?>
+
       <!-- === Buttons styling === -->
       <fieldset class="pbot-fieldset">
         <legend>Buttons</legend>
@@ -190,6 +213,11 @@
                  value="<?php echo esc_attr($productKey); ?>" autocomplete="off" />
         </div>
       </fieldset>
+
+      <?php
+      // 🔌 Hook point for add-ons to inject sections at the end of the form.
+      do_action('pbot_admin_settings_after_form', $ctx);
+      ?>
 
       <div class="pbot-actions-bar">
         <?php submit_button('Save Settings', 'primary', 'submit', false); ?>
