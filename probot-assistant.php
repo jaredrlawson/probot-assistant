@@ -295,22 +295,30 @@ add_action('admin_init', function () {
  * Includes (drop-ins)
  * ----------------------------------------------------------------------- */
 
-// Optional self-updater (drop-in)
-if ( file_exists( pbot_path('includes/class-pbot-self-updater.php') ) ) {
-  require_once pbot_path('includes/class-pbot-self-updater.php');
-
-  // Instantiate only in admin, only for users who can update plugins
+/* --------------------------------------------------------------------------
+ * Optional GitHub self-updater (drop-in)
+ * ----------------------------------------------------------------------- */
+if ( is_admin() ) {
   add_action('admin_init', function () {
-    if ( ! is_admin() || ! current_user_can('update_plugins') ) return;
-    if ( ! class_exists('PBot_Self_Updater') ) return;
+    // must be in wp-admin and able to update plugins
+    if ( ! current_user_can('update_plugins') ) return;
 
-    new PBot_Self_Updater([
+    // include class file if present
+    $updater_file = pbot_path('includes/class-pbot-self-updater.php');
+    if ( ! file_exists($updater_file) ) return;
+    require_once $updater_file;
+
+    // instantiate once
+    if ( ! class_exists('PBot_Self_Updater') ) return;
+    if ( isset($GLOBALS['pbot_updater']) && $GLOBALS['pbot_updater'] instanceof PBot_Self_Updater ) return;
+
+    $GLOBALS['pbot_updater'] = new PBot_Self_Updater([
       'file' => PROBOT_FILE,
-      'slug' => plugin_basename(PROBOT_FILE), // probot-assistant/probot-assistant.php
+      'slug' => plugin_basename(PROBOT_FILE), // e.g. probot-assistant/probot-assistant.php
       'user' => 'jaredrlawson',
       'repo' => 'probot-assistant',
     ]);
-  });
+  }, 1);
 }
 
 /** SETTINGS (split: register + page) */
@@ -335,3 +343,13 @@ if ( file_exists( pbot_path('includes/admin-article-writer.php') ) ) {
     }
   }
 }
+
+// TEMP: one-time cache flush for the updater
+add_action('admin_init', function () {
+  if ( ! current_user_can('update_plugins') ) return;
+  if ( ! isset($_GET['pbot_flush_updater']) ) return;
+  // cache key used by the class below (user/repo md5)
+  delete_site_transient('pbot_upd_' . md5('jaredrlawson/probot-assistant'));
+  wp_safe_redirect( admin_url('plugins.php?flushed=1') );
+  exit;
+});
