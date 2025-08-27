@@ -295,9 +295,22 @@ add_action('admin_init', function () {
  * Includes (drop-ins)
  * ----------------------------------------------------------------------- */
 
-/** Optional self-updater (load if present) */
+// Optional self-updater (drop-in)
 if ( file_exists( pbot_path('includes/class-pbot-self-updater.php') ) ) {
   require_once pbot_path('includes/class-pbot-self-updater.php');
+
+  // Instantiate only in admin, only for users who can update plugins
+  add_action('admin_init', function () {
+    if ( ! is_admin() || ! current_user_can('update_plugins') ) return;
+    if ( ! class_exists('PBot_Self_Updater') ) return;
+
+    new PBot_Self_Updater([
+      'file' => PROBOT_FILE,
+      'slug' => plugin_basename(PROBOT_FILE), // probot-assistant/probot-assistant.php
+      'user' => 'jaredrlawson',
+      'repo' => 'probot-assistant',
+    ]);
+  });
 }
 
 /** SETTINGS (split: register + page) */
