@@ -9,7 +9,7 @@
     const borderL = parseFloat(style.borderLeftWidth)  || 0;
     const borderR = parseFloat(style.borderRightWidth) || 0;
 
-    // Use a hidden mirror to measure content width
+    // Hidden mirror span for measuring content width
     let mirror = input._pbotMirror;
     if (!mirror) {
       mirror = document.createElement('span');
@@ -24,17 +24,20 @@
       mirror.style.margin = '0';
       document.body.appendChild(mirror);
     }
+
     const val = input.value || input.placeholder || '';
     mirror.textContent = val;
 
     const content = Math.ceil(mirror.getBoundingClientRect().width);
-    const min = 40; // base minimum
+    const min = 40; // base minimum px
 
-    // Per-class caps (match CSS classes used in settings markup)
+    // Per-class caps (keep things compact)
     const max =
-      input.classList.contains('pbot-color-text') ? 220 :
-      input.classList.contains('pbot-num-mid')     ? 70  :
-      input.classList.contains('pbot-num-short')   ? 55  : 420;
+      input.classList.contains('pbot-color-text') ? 220 :   // color hex/rgb fields
+      input.classList.contains('pbot-auto-num')    ? 110 :   // autosized numeric text fields
+      input.classList.contains('pbot-num-mid')     ? 70  :   // legacy classes
+      input.classList.contains('pbot-num-short')   ? 55  :
+      420;
 
     const target = Math.max(min, Math.min(content + padL + padR + borderL + borderR + 6, max));
     input.style.width = target + 'px';
@@ -48,8 +51,8 @@
   function bindAutosize(input) {
     if (!input) return;
     const handler = () => setWidthToContent(input);
-    ['input', 'change'].forEach(ev => input.addEventListener(ev, handler));
-    handler(); // initial
+    ['input', 'change', 'keyup', 'blur'].forEach(ev => input.addEventListener(ev, handler));
+    handler(); // initial measure
   }
 
   function initAutosize() {
@@ -63,17 +66,10 @@
     if (!p || !i) return;
     const isHex = s => /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test((s || '').trim());
 
-    if (isHex(i.value)) p.value = i.value.trim(); // seed picker
+    if (isHex(i.value)) p.value = i.value.trim(); // seed
 
-    p.addEventListener('input', () => {
-      i.value = p.value;
-      setWidthToContent(i);
-    });
-
-    i.addEventListener('input', () => {
-      if (isHex(i.value)) p.value = i.value.trim();
-      setWidthToContent(i);
-    });
+    p.addEventListener('input', () => { i.value = p.value; setWidthToContent(i); });
+    i.addEventListener('input', () => { if (isHex(i.value)) p.value = i.value.trim(); setWidthToContent(i); });
   }
 
   function initColorSync() {
@@ -117,11 +113,35 @@
     }
   }
 
+  /* ---------------- Opt-in autosize for numeric fields ---------------- */
+  function initAutoNum() {
+    // Add autosize behavior to specific numeric inputs (keeps native height)
+    const ids = [
+      'pbot_btn_border_weight',
+      'pbot_send_border_weight',
+      'pbot_teaser_show_count',
+      'pbot_match_threshold',
+      'pbot_greeting_delay_ms',
+      'pbot_teaser_duration_ms'
+    ];
+    ids.forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.classList.add('pbot-auto-num');           // CSS makes width auto + compact
+      // Keep type="number" for native spinners; just hint keyboards on mobile
+      if (!el.hasAttribute('inputmode')) {
+        el.setAttribute('inputmode', /threshold/i.test(id) ? 'decimal' : 'numeric');
+      }
+      bindAutosize(el);                             // mirror-measured width
+    });
+  }
+
   /* ---------------- Boot ---------------- */
   function boot() {
-    initAutosize();
     initColorSync();
     initSliders();
+    initAutoNum();
+    initAutosize();
     autosizeAll();
   }
 
@@ -131,7 +151,7 @@
     boot();
   }
 
-  // Re-run width when any autosized input changes (defensive)
+  // Defensive: re-measure on change
   document.addEventListener('change', e => {
     const t = e.target;
     if (t && (t.classList?.contains('pbot-auto-text') ||
