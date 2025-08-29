@@ -21,21 +21,15 @@
   min-width:0;
 }
 
-/* Compact swatches + ultra-tight number fields */
+/* Compact swatches */
 .pbot-swatch-input{ width:220px !important; max-width:100%; }
 
-/* Ultra-tight number inputs — base classes */
-.pbot-num-short { width:55px !important; text-align:right; padding:1px 3px; }
-.pbot-num-mid   { width:70px !important; text-align:right; padding:1px 3px; }
+/* (Legacy numeric classes kept for back-compat; no forced widths) */
+.pbot-num-short { text-align:right; padding:1px 3px; }
+.pbot-num-mid   { text-align:right; padding:1px 3px; }
 
 /* Tiny margin before helper text */
 .pbot-settings .pbot-row input[type="number"]{ margin-right:4px; }
-
-/* Targeted tightening (IDs) */
-#pbot_match_threshold{ width:60px !important; text-align:right; padding:1px 3px; }
-#pbot_teaser_show_count{ width:42px !important; text-align:right; padding:1px 3px; }
-#pbot_teaser_duration_ms{ width:70px !important; text-align:right; padding:1px 3px; }
-#pbot_greeting_delay_ms{ width:70px !important; text-align:right; padding:1px 3px; }
 
 /* Specific single-line textfield (toast message) */
 #pbot_teaser_message{
@@ -132,7 +126,7 @@ select.pbot-select{ min-width:320px; max-width:100%; }
 /* Halo & Pulse intensity slider values */
 #pbot_halo_intensity, #pbot_pulse_intensity { max-width:220px; }
 .pbot-halo-val, .pbot-pulse-val{
-  font-family:Menlo,Consolas,monospace;
+  font-family:Menlo,Consolas,Monaco,monospace;
   font-size:13px; margin-left:6px; color:#333;
   min-width:38px; text-align:right; display:inline-block;
 }
@@ -142,3 +136,60 @@ select.pbot-select{ min-width:320px; max-width:100%; }
   width:42px; height:32px; padding:0; border:1px solid #d0d0d0; border-radius:6px;
 }
 .pbot-color-row .pbot-swatch-input{ width:220px !important; max-width:100%; }
+
+/* === HARD WIDTHS (no JS) for tiny numeric controls === */
+/* Force compact widths per-field, independent of browser number-input quirks. */
+
+.pbot-settings .pbot-row input#pbot_btn_border_weight,
+.pbot-settings .pbot-row input#pbot_send_border_weight {
+  width: 5ch !important;         /* e.g., "1.5" or "2" */
+  text-align: right !important;
+  padding-right: .4em !important;
+  flex: 0 0 auto !important;
+  -moz-appearance: textfield;
+}
+.pbot-settings .pbot-row input#pbot_teaser_show_count {
+  width: 4ch !important;         /* e.g., "3" */
+  text-align: right !important;
+  padding-right: .4em !important;
+  flex: 0 0 auto !important;
+  -moz-appearance: textfield;
+}
+.pbot-settings .pbot-row input#pbot_match_threshold {
+  width: 6ch !important;         /* e.g., "0.52" */
+  text-align: right !important;
+  padding-right: .4em !important;
+  flex: 0 0 auto !important;
+  -moz-appearance: textfield;
+}
+.pbot-settings .pbot-row input#pbot_greeting_delay_ms {
+  width: 6ch !important;         /* e.g., "2200" */
+  text-align: right !important;
+  padding-right: .4em !important;
+  flex: 0 0 auto !important;
+  -moz-appearance: textfield;
+}
+.pbot-settings .pbot-row input#pbot_teaser_duration_ms {
+  width: 6ch !important;         /* e.g., "4500" */
+  text-align: right !important;
+  padding-right: .4em !important;
+  flex: 0 0 auto !important;
+  -moz-appearance: textfield;
+}
+
+/* Remove spinners so they don't affect width calc (optional) */
+.pbot-settings .pbot-row input#pbot_btn_border_weight::-webkit-outer-spin-button,
+.pbot-settings .pbot-row input#pbot_btn_border_weight::-webkit-inner-spin-button,
+.pbot-settings .pbot-row input#pbot_send_border_weight::-webkit-outer-spin-button,
+.pbot-settings .pbot-row input#pbot_send_border_weight::-webkit-inner-spin-button,
+.pbot-settings .pbot-row input#pbot_teaser_show_count::-webkit-outer-spin-button,
+.pbot-settings .pbot-row input#pbot_teaser_show_count::-webkit-inner-spin-button,
+.pbot-settings .pbot-row input#pbot_match_threshold::-webkit-outer-spin-button,
+.pbot-settings .pbot-row input#pbot_match_threshold::-webkit-inner-spin-button,
+.pbot-settings .pbot-row input#pbot_greeting_delay_ms::-webkit-outer-spin-button,
+.pbot-settings .pbot-row input#pbot_greeting_delay_ms::-webkit-inner-spin-button,
+.pbot-settings .pbot-row input#pbot_teaser_duration_ms::-webkit-outer-spin-button,
+.pbot-settings .pbot-row input#pbot_teaser_duration_ms::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
