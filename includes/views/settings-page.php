@@ -59,7 +59,7 @@
         <div class="pbot-row">
           <label for="pbot_teaser_duration_ms"><strong>Duration (ms)</strong></label>
           <input type="number" id="pbot_teaser_duration_ms" name="pbot_teaser_duration_ms"
-                 class="pbot-num-mid"
+                 class="pbot-num-mid pbot-auto-num"
                  min="1000" max="20000" step="100"
                  value="<?php echo esc_attr($toastMs); ?>" />
           <span class="pbot-muted">1–20s</span>
@@ -68,7 +68,7 @@
         <div class="pbot-row">
           <label for="pbot_teaser_show_count"><strong>Show count (per visit)</strong></label>
           <input type="number" id="pbot_teaser_show_count" name="pbot_teaser_show_count"
-                 class="pbot-num-short"
+                 class="pbot-num-short pbot-auto-num"
                  min="0" max="20" step="1"
                  value="<?php echo esc_attr($toastCount); ?>" />
           <span class="pbot-muted">0 = never show (client-side tracked).</span>
@@ -150,7 +150,7 @@
           <label><input type="checkbox" name="pbot_btn_border_enabled" value="1" <?php checked($btnBorderEnabled,1); ?>> Show border</label>
           <label for="pbot_btn_border_weight" class="pbot-muted" style="margin-left:10px;">Line (px)</label>
           <input type="number" id="pbot_btn_border_weight" name="pbot_btn_border_weight"
-                 class="pbot-num-mid"
+                 class="pbot-num-mid pbot-auto-num"
                  min="0" max="6" step="0.5"
                  value="<?php echo esc_attr($btnBorderWeight); ?>" />
         </div>
@@ -167,7 +167,7 @@
           <label><input type="checkbox" name="pbot_send_border_enabled" value="1" <?php checked($sendBorderEnabled,1); ?>> Show border</label>
           <label for="pbot_send_border_weight" class="pbot-muted" style="margin-left:10px;">Line (px)</label>
           <input type="number" id="pbot_send_border_weight" name="pbot_send_border_weight"
-                 class="pbot-num-mid"
+                 class="pbot-num-mid pbot-auto-num"
                  min="0" max="6" step="0.5"
                  value="<?php echo esc_attr($sendBorderWeight); ?>" />
         </div>
@@ -183,7 +183,7 @@
       <div class="pbot-row">
         <label for="pbot_match_threshold"><strong>Fuzzy match threshold</strong></label>
         <input type="number" id="pbot_match_threshold" name="pbot_match_threshold"
-               class="pbot-num-mid"
+               class="pbot-num-mid pbot-auto-num"
                min="0" max="1" step="0.01"
                value="<?php echo esc_attr($thresh); ?>" />
         <span class="pbot-muted">0 = very loose, 1 = very strict (default 0.52)</span>
@@ -192,7 +192,7 @@
       <div class="pbot-row">
         <label for="pbot_greeting_delay_ms"><strong>Greeting typing delay (min ms)</strong></label>
         <input type="number" id="pbot_greeting_delay_ms" name="pbot_greeting_delay_ms"
-               class="pbot-num-mid"
+               class="pbot-num-mid pbot-auto-num"
                min="0" step="50"
                value="<?php echo esc_attr($gDelay); ?>" />
         <span class="pbot-muted">Minimum typing-dots time before the greeting shows.</span>
