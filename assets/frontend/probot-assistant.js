@@ -226,21 +226,64 @@ jQuery(function ($) {
   pinHeaderActions();
   $(window).on('resize orientationchange', pinHeaderActions);
 
-  /* ---------------- SOUND ---------------- */
+/* ---------------- SOUND (single ding manager) ---------------- */
+  const audioEl = document.getElementById('probot-notify-sound');
+
+  // Session flags (kept if already set by other code)
+  window.__pbotIsClosed    = !!window.__pbotIsClosed;
+  window.__pbotIsMinimized = !!window.__pbotIsMinimized;
+
+  // Reopen window (for greeting clamp when reopening from minimize)
+  let reopenAt = 0;
+  let reopenOnePlayed = false;
+  const REOPEN_WINDOW = 1800; // ms
+
+  // Hard dedupe for rapid plays
+  let lastDingAt = 0;
+  function recently(ms){ return (Date.now() - lastDingAt) < ms; }
+  function markDing(){ lastDingAt = Date.now(); }
+
+  // Only our manager is allowed to actually play()
+  if (audioEl && !audioEl.__pbotPlayGuard) {
+    const origPlay = audioEl.play.bind(audioEl);
+    audioEl.play = function(){
+      // Backstop: if someone calls audio.play() directly, still obey our rules
+      if (window.__pbotIsClosed) return Promise.resolve();
+      if (recently(500))         return Promise.resolve();
+      markDing();
+      try { return origPlay(); } catch { return Promise.resolve(); }
+    };
+    audioEl.__pbotPlayGuard = true;
+  }
+
+  // Controlled ding() – use everywhere instead of direct audio.play()
+  function ding(){
+    if (!cfg.sound_enabled) return;
+    if (!audioEl) return;
+
+    // allow dings while minimized, but never when CLOSED
+    if (window.__pbotIsClosed) return;
+
+    // Clamp greeting right after reopen to one ding total
+    const insideReopen = (Date.now() - reopenAt) <= REOPEN_WINDOW;
+    if (insideReopen) {
+      if (reopenOnePlayed) return; // already spent the greet ding
+      reopenOnePlayed = true;
+    }
+
+    if (recently(500)) return; // hard dedupe
+    audioEl.currentTime = 0;
+    audioEl.play().catch(()=>{});
+  }
+
+  // Unlock sound on any first interaction (kept)
   let audioUnlocked = false;
   function unlockAudio() {
     if (audioUnlocked) return;
-    const a = document.getElementById('probot-notify-sound');
+    const a = audioEl;
     if (!a) return;
     a.volume = 1;
     a.play().then(()=>{ a.pause(); a.currentTime = 0; audioUnlocked = true; }).catch(()=>{});
-  }
-  function ding(){
-    if (!cfg.sound_enabled) return;
-    const a = document.getElementById('probot-notify-sound');
-    if (!a) return;
-    a.currentTime = 0;
-    a.play().catch(()=>{});
   }
   $button.on('click', unlockAudio);
   $(document).on('click touchstart keydown', function one(){ unlockAudio(); $(document).off('click touchstart keydown', one); });
@@ -452,7 +495,7 @@ jQuery(function ($) {
     setTimeout(()=> $teaser.removeClass('in out').hide(), dur + 800);
   }
 
-  /* ---------------- OPEN/CLOSE ---------------- */
+/* ---------------- OPEN/CLOSE (no greet on reopen; sound rules) ---------------- */
   async function maybeShowOpenGreeting(){
     const $typing = $('<div class="msg bot typing"><div class="avatar" aria-hidden="true">🤖</div><div class="bubble"><span class="typing-dots"><i></i><i></i><i></i></span></div></div>');
     $body.append($typing); scrollToBottom();
@@ -464,7 +507,8 @@ jQuery(function ($) {
       const scaled = typingDelayFor(greeting, { min: (typeof cfg.greeting_delay_ms === 'number' ? cfg.greeting_delay_ms : 2200), max: 15000, base: 600, perChar: 40, perWord: 35 });
       await minDelay(scaled);
       $typing.removeClass('typing').find('.bubble').html(greeting);
-      scrollToBottom(); ensureScrollable(); ding();
+      scrollToBottom(); ensureScrollable();
+      ding(); // one ding at greeting finalize
     } else {
       await minDelay(Math.max(0, (typeof cfg.greeting_delay_ms === 'number' ? cfg.greeting_delay_ms : 2200)));
       $typing.remove();
@@ -472,35 +516,55 @@ jQuery(function ($) {
     }
   }
 
+  function stopAnySound(){ try { audioEl && (audioEl.pause(), audioEl.currentTime = 0); } catch {} }
+
   function openChat(){
+    // Opening from bubble = not closed/minimized; arm "one ding" window for greeting
+    window.__pbotIsClosed = false;
+    window.__pbotIsMinimized = false;
+    reopenAt = Date.now();
+    reopenOnePlayed = false;
+
     $overlay.fadeIn(120, async () => {
       $overlay.attr('aria-hidden','false'); lockBody(); onVV();
       $scroll.css('overflow','hidden');
-      await maybeShowOpenGreeting();
+
+      // IMPORTANT: greet ONLY if it's a fresh session (no prior messages)
+      const fresh = ($body.children().length === 0);
+      if (fresh) await maybeShowOpenGreeting();
     });
     $button.fadeOut(100).removeClass('pbot-pulse'); $teaser.hide();
   }
+
   async function minimizeChat(){
-    await loadIntents(true); // refresh for next open
+    window.__pbotIsMinimized = true;   // session alive, can still ding
+    stopAnySound();                    // but stop any in-flight sound now
+    await loadIntents(true);           // refresh for next open
     $overlay.fadeOut(120, () => {
       $overlay.attr('aria-hidden','true'); unlockBody();
       $scroll.css('overflow','hidden');
     });
     $button.fadeIn(120).addClass('pbot-pulse');
   }
+
   async function closeChat(){
+    // Closed = end session: no more dings until reopened
+    window.__pbotIsClosed = true;
+    window.__pbotIsMinimized = false;
+    stopAnySound();
     $body.empty();
     await minimizeChat();
   }
 
   $button.on('click', openChat);
   $button.on('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openChat(); } });
-  $('#probot-minimize').on('click', () => { minimizeChat(); });
-  $('#probot-close').on('click',    () => { closeChat(); });
-  $('#probot-chat-mask').on('click', () => { minimizeChat(); });
+  $('#probot-minimize').off('click').on('click', () => { minimizeChat(); });
+  $('#probot-close').off('click').on('click',    () => { closeChat(); });
+  $('#probot-chat-mask').off('click').on('click', () => { minimizeChat(); });
 
-  /* ---------------- SUBMIT → JSON ONLY (exact → fuzzy) ---------------- */
+/* ---------------- SUBMIT → JSON ONLY (exact → fuzzy) ---------------- */
   const $form = $('#probot-form');
+  let lastSubmitAt = 0;
 
   $input.on('keydown', function(e){
     if (e.key === 'Enter') { e.preventDefault(); $form.trigger('submit'); }
@@ -510,8 +574,14 @@ jQuery(function ($) {
     e.preventDefault(); $form.trigger('submit');
   });
 
-  $form.on('submit', async function(e){
+  $form.off('submit').on('submit', async function(e){
     e.preventDefault();
+
+    // mobile double-tap / mousedown+touchstart guard
+    const now = Date.now();
+    if (now - lastSubmitAt < 350) return;
+    lastSubmitAt = now;
+
     unlockAudio();
 
     const msg = $input.val().trim(); if (!msg) return;
@@ -524,13 +594,17 @@ jQuery(function ($) {
     const jsonReply = matchIntent(msg);
     if (!jsonReply) return;
 
+    // ensure only ONE typing bubble exists
+    $body.find('.msg.bot.typing').remove();
+
     const $typing = $('<div class="msg bot typing"><div class="avatar" aria-hidden="true">🤖</div><div class="bubble"><span class="typing-dots"><i></i><i></i><i></i></span></div></div>');
     $body.append($typing); scrollToBottom();
 
     const waitMs = typingDelayFor(jsonReply, { min: 700, max: 12000, base: 500, perChar: 38, perWord: 35 });
     setTimeout(()=>{
       $typing.removeClass('typing').find('.bubble').html(jsonReply);
-      scrollToBottom(); ensureScrollable(); ding();
+      scrollToBottom(); ensureScrollable();
+      ding(); // one ding per finalized reply
     }, waitMs);
   });
 
