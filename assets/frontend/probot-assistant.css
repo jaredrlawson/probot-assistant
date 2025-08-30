@@ -266,3 +266,31 @@ body.probot-locked{ touch-action:none; overscroll-behavior:none; }
   #probot-chat-mask{ background:rgba(0,0,0,.22); }
   #probot-chat-scroll{ height:calc(78vh - 56px - var(--ib)); }
 }
+
+/* === Desktop panel anchor (left/right) — final, hard-won fix :) === */
+@media (min-width:900px){
+  /* neutralize defaults so our side rules can win */
+  #probot-chat-panel{
+    left:auto !important; right:auto !important; top:auto !important; bottom:24px !important;
+  }
+
+  /* Preferred path: modern browsers with :has() */
+  body:has(#probot-chat-button[left]) #probot-chat-panel{
+    left:24px !important; right:auto !important;
+    transform-origin: bottom left !important;
+  }
+  body:has(#probot-chat-button[right]) #probot-chat-panel{
+    right:24px !important; left:auto !important;
+    transform-origin: bottom right !important;
+  }
+
+  /* Fallback for browsers without :has() (works with JS class toggles we added) */
+  body.pbot-left  #probot-chat-panel{
+    left:24px !important; right:auto !important;
+    transform-origin: bottom left !important;
+  }
+  body.pbot-right #probot-chat-panel{
+    right:24px !important; left:auto !important;
+    transform-origin: bottom right !important;
+  }
+}
