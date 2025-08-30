@@ -189,6 +189,24 @@ jQuery(function ($) {
   // Apply halo & pulse now that the button exists (root + element-level vars)
   applyHaloAndPulse($button);
 
+  /* ---------------- NEW: desktop anchor fallback if :has() unsupported ---------------- */
+  (function desktopAnchorFallback(){
+    try {
+      const supportsHas = window.CSS && CSS.supports && CSS.supports('selector(:has(*))');
+      if (supportsHas) return; // native CSS handles it
+    } catch(e) { /* continue with fallback */ }
+
+    const setSide = () => {
+      document.body.classList.toggle('pbot-left',  $button.is('[left]'));
+      document.body.classList.toggle('pbot-right', $button.is('[right]'));
+    };
+    setSide();
+    // Watch for attribute flips (future-proofing)
+    if ($button[0]) {
+      new MutationObserver(setSide).observe($button[0], { attributes:true, attributeFilter:['left','right'] });
+    }
+  })();
+
   /* ---------------- pin header actions seatbelt (no border clobber) ---------------- */
   function pinHeaderActions(){
     const topbar  = document.getElementById('probot-topbar');
