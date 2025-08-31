@@ -364,6 +364,10 @@ if ( is_admin() ) {
       'slug' => plugin_basename(PROBOT_FILE), // e.g. probot-assistant/probot-assistant.php
       'user' => 'jaredrlawson',
       'repo' => 'probot-assistant',
+      // Toggle prerelease support:
+      // true = pull betas/RCs as updates,
+      // false = only stable releases
+      'include_prereleases' => true,
     ]);
   }, 1);
 }
@@ -391,12 +395,12 @@ if ( file_exists( pbot_path('includes/admin-article-writer.php') ) ) {
   }
 }
 
-// TEMP: one-time cache flush for the updater
+// // TEMP: manual flush for the self-updater cache
 add_action('admin_init', function () {
   if ( ! current_user_can('update_plugins') ) return;
-  if ( ! isset($_GET['pbot_flush_updater']) ) return;
-  // cache key used by the class below (user/repo md5)
-  delete_site_transient('pbot_upd_' . md5('jaredrlawson/probot-assistant'));
-  wp_safe_redirect( admin_url('plugins.php?flushed=1') );
-  exit;
-});
+  if ( isset($_GET['pbot_flush_updater']) ) {
+    delete_site_transient('pbot_upd_' . md5('jaredrlawson/probot-assistant'));
+    wp_safe_redirect( admin_url('plugins.php?flushed=1') );
+    exit;
+  }
+}, 99);
