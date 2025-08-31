@@ -204,3 +204,17 @@ select.pbot-select{ min-width:320px; max-width:100%; }
   align-items: center;
   gap: 6px;
 }
+
+.pbot-badge{
+  background:#22863a; /* stable */
+  color:#fff;
+  padding:2px 8px;
+  border-radius:4px;
+  font-size:12px;
+  line-height:1.6;
+  margin-left:8px;
+  vertical-align:middle;
+}
+.pbot-badge.is-beta{
+  background:#d97b00; /* beta */
+}
