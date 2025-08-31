@@ -193,3 +193,14 @@ select.pbot-select{ min-width:320px; max-width:100%; }
   -webkit-appearance: none;
   margin: 0;
 }
+
+.pbot-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 18px;
+}
+.pbot-inline .pbot-inline-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
