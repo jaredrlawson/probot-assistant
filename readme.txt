@@ -49,26 +49,22 @@ Yes. Use the native color pickers or paste values (hex/RGB/RGBA). You can also t
 
 == Changelog ==
 
-= 1.5.7 (2025-08-31) =
-* **Admin polish:**
-  - Bubble position wrapped in bordered block with inline radios
-  - Matching (fuzzy threshold) wrapped in bordered block with cleaner label
-  - Greeting typing delay wrapped in bordered block with proper spacing
-  - Fixed helper text spacing (e.g., "0 = very loose") to match other controls
-* **Sound fixes:**
-  - Greeting plays one ding after reopen/minimize
-  - Responses now play exactly one ding (no double sounds)
-  - Sound suppressed correctly when closed/minimized
-* **Stable milestone** — all admin + frontend polish from 1.5.6 now fully stabilized.
+= 1.5.7 (Stable) — 2025-08-31 =
+* Introduced **unified version badge system**:  
+  - Plugins list shows “Version: 1.5.7 | By Jared Я Lawson | [Stable/Beta]” with colored badge.  
+  - Admin settings page header shows `v1.5.x` in green (Stable) or `v1.5.x Beta` in orange (Beta).
+* Cleaner version parsing (no more duplicate “-beta Beta”).
+* All version labels now pull from a single **PROBOT_VERSION** constant for consistency.
+* Verified stable release of updater + admin styling.
 
-= 1.5.6-dev-stable (2025-08-24) =
+= 1.5.6 (Stable) — 2025-08-24 =
 * Split admin into drop-ins:
   - `admin-settings-register.php` + `admin-settings-page.php`
   - `admin-knowledge-register.php` + `admin-knowledge-page.php`
   - `admin-article-writer.php` (preview scaffold)
 * Admin JS: autosize helpers, color-picker sync, live slider readouts.
 
-= 1.5.5 (2025-08-20) =
+= 1.5.5 (Stable) — 2025-08-20 =
 * **Stable milestone** 🎉
 * Native **color pickers** + text inputs for Bubble / Halo / Window.
 * **Halo intensity** and **Pulse intensity** sliders.
@@ -82,7 +78,7 @@ Yes. Use the native color pickers or paste values (hex/RGB/RGBA). You can also t
 * Non-linear halo intensity mapping for smoother feel.
 * Hardened scroll model (only message list scrolls).
 
-= 1.5.4 (2025-08-18) =
+= 1.5.4 — 2025-08-18 =
 * Knowledge Base Import/Export JSON.
 * Wrapped raw JSON viewer + Copy JSON button.
 * Quick Add Q/A and Set Greeting (AJAX).
@@ -92,7 +88,7 @@ Yes. Use the native color pickers or paste values (hex/RGB/RGBA). You can also t
 * Minor desktop design tweaks.
 * Groundwork for configurable toast frequency & custom text.
 
-= 1.5.3 (2025-08-15) =
+= 1.5.3 — 2025-08-15 =
 * Folder structure cleanup (`/frontend`, `/admin`, `/json`).
 * Chat bubble icon hover/tap fix (no blue flash).
 * Send button redesign (rounded square, subtle push/hover).
@@ -102,24 +98,46 @@ Yes. Use the native color pickers or paste values (hex/RGB/RGBA). You can also t
 * Cache-busting for front-end assets via `filemtime()`.
 * Admin notices for settings/responses saved.
 
-= 1.5.2 (2025-08-12) =
+= 1.5.2 — 2025-08-12 =
 * Added `greeting_delay_ms` (minimum dots before greeting appears).
 * Improved fuzzy matching + JSON intent handling.
 * Teaser placement variables (`--teaser-gap-x`, `--teaser-gap-y`) in CSS.
 * Toast duration and show-count options.
 
-= 1.5.1 (2025-08-10) =
+= 1.5.1 — 2025-08-10 =
 * Initial fuzzy match release.
 * JSON-driven intents (manual or packaged).
 * Basic admin settings + knowledge base UI.
 * Fuzzy matching fallback (Jaccard + Levenshtein).
 * Greeting typing delay setting.
 
-= 1.5.0 (2025-08-01) =
+= 1.5.0 — 2025-08-01 =
 * Initial modern release: chat bubble, panel, teaser toast, admin pages.
 * Packaged JSON (`assets/json/intents.json`).
 * Mobile-first overlay; desktop popup.
 * Admin Settings screen (brand, halo, panel, sound, teaser).
+
+= 1.4.0 — 2025-07-20 =
+* Modernized chat bubble & icon buttons.
+* Added teaser toast default copy.
+
+= 1.3.0 — 2025-07-10 =
+* More reliable scroll-to-bottom handling.
+* ARIA labels for accessibility.
+
+= 1.2.0 — 2025-07-01 =
+* Better mobile keyboard handling.
+* Fixed chat input clipping.
+
+= 1.1.0 — 2025-06-20 =
+* Admin options for brand title, bubble side, and toggles.
+* Typing dots animation.
+
+= 1.0.0 — 2025-06-01 =
+* Floating bubble + chat panel.
+* Static responses.
+* Minimal CSS + vanilla JS.
+* WordPress plugin scaffolding.
 
 == Roadmap ==
 
@@ -134,14 +152,11 @@ Ongoing polish and UX tightening across 1.5.6 → 1.5.9 as needed to keep the fr
 
 == Upgrade Notice ==
 
-= 1.5.7 =
-Stabilizes all frontend and admin polish. Fixes double dings, greeting/reply sound logic, and adds bordered blocks for key settings.
+= 1.5.7 (Stable) =
+Adds unified version badges (Plugins list + Settings page), cleans up version strings, and confirms updater/admin polish.
 
-= 1.5.6-dev-stable =
+= 1.5.6 (Stable) =
 Splits admin into modular drop-ins for easier maintenance.
 
-= 1.5.5 =
+= 1.5.5 (Stable) =
 Stable milestone. Color pickers, halo/pulse intensity, KB improvements, and admin “Settings saved” banner.
-
-= 1.5.4 =
-Fixes toast input overflow on mobile and adds KB Import/Export.
