@@ -30,11 +30,17 @@
                value="<?php echo esc_attr($brand); ?>" class="regular-text" />
       </div>
 
-      <div class="pbot-row">
-        <label><strong>Bubble position</strong></label>
-        <label><input type="radio" name="pbot_bubble_position" value="left"  <?php checked($pos,'left');  ?>> Left</label>
-        <label><input type="radio" name="pbot_bubble_position" value="right" <?php checked($pos,'right'); ?>> Right</label>
-      </div>
+      <fieldset class="pbot-fieldset">
+  <legend>Bubble position</legend>
+  <div class="pbot-inline">
+    <label class="pbot-inline-item">
+      <input type="radio" name="pbot_bubble_position" value="left"  <?php checked($pos,'left');  ?>> Left
+    </label>
+    <label class="pbot-inline-item">
+      <input type="radio" name="pbot_bubble_position" value="right" <?php checked($pos,'right'); ?>> Right
+    </label>
+  </div>
+</fieldset>
 
       <fieldset class="pbot-fieldset">
         <legend>Visuals &amp; Behavior</legend>
@@ -180,23 +186,31 @@
         </div>
       </fieldset>
 
-      <div class="pbot-row">
-        <label for="pbot_match_threshold"><strong>Fuzzy match threshold</strong></label>
-        <input type="number" id="pbot_match_threshold" name="pbot_match_threshold"
-               class="pbot-num-mid pbot-auto-num"
-               min="0" max="1" step="0.01"
-               value="<?php echo esc_attr($thresh); ?>" />
-        <span class="pbot-muted">0 = very loose, 1 = very strict (default 0.52)</span>
-      </div>
+      <fieldset class="pbot-fieldset">
+  <legend>Matching</legend>
+  <div class="pbot-row">
+    <label for="pbot_match_threshold"><strong>Fuzzy match threshold</strong></label>
+    <input type="number" id="pbot_match_threshold" name="pbot_match_threshold"
+           class="pbot-num-mid pbot-auto-num"
+           min="0" max="1" step="0.01"
+           value="<?php echo esc_attr($thresh); ?>" />
+    <div class="pbot-muted" style="margin-top:8px;">0 = very loose, 1 = very strict (default 0.52)</div>
+  </div>
+</fieldset>
 
-      <div class="pbot-row">
-        <label for="pbot_greeting_delay_ms"><strong>Greeting typing delay (min ms)</strong></label>
-        <input type="number" id="pbot_greeting_delay_ms" name="pbot_greeting_delay_ms"
-               class="pbot-num-mid pbot-auto-num"
-               min="0" step="50"
-               value="<?php echo esc_attr($gDelay); ?>" />
-        <span class="pbot-muted">Minimum typing-dots time before the greeting shows.</span>
+      <fieldset class="pbot-fieldset">
+    <legend>Greeting</legend>
+    <div class="pbot-row">
+      <label for="pbot_greeting_delay_ms"><strong>Greeting typing delay (min ms)</strong></label>
+      <input type="number" id="pbot_greeting_delay_ms" name="pbot_greeting_delay_ms"
+             class="pbot-num-mid pbot-auto-num"
+             min="0" step="50"
+             value="<?php echo esc_attr($gDelay); ?>" />
+      <div class="pbot-muted" style="margin-top:6px;">
+        Minimum typing-dots time before the greeting shows.
       </div>
+    </div>
+  </fieldset>
 
       <fieldset class="pbot-fieldset">
         <legend>Keys (for paid features)</legend>
