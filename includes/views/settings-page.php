@@ -1,6 +1,11 @@
 <?php if (!defined('ABSPATH')) exit; ?>
 <div class="wrap pbot-wrap pbot-settings">
-  <h1>ProBot Assistant — Settings</h1>
+  <h1>
+    ProBot Assistant — Settings
+    <span class="pbot-badge<?php echo pbot_version_is_beta() ? ' is-beta' : ''; ?>" style="margin-left:8px;">
+      v<?php echo esc_html( pbot_version_display() ); ?><?php echo pbot_version_is_beta() ? ' Beta' : ''; ?>
+    </span>
+  </h1>
 
   <?php
   // Optional: let add-ons inject notices or sections above the card.
