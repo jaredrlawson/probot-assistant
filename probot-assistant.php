@@ -2,7 +2,7 @@
 /**
  * Plugin Name: ProBot Assistant
  * Description: Front-end chat assistant with teaser, JSON intents (packaged or manual), fuzzy matching, and admin Knowledge Base manager.
- * Version: 1.5.7 Stable
+ * Version: 1.5.7
  * Author: Jared Я Lawson
  * License: GPLv2 or later
  */
@@ -12,6 +12,53 @@ if (!defined('ABSPATH')) exit;
 define('PROBOT_FILE', __FILE__);
 define('PROBOT_PATH', plugin_dir_path(__FILE__));
 define('PROBOT_URL',  plugin_dir_url(__FILE__));
+
+/* --------------------------------------------------------------------------
+ * Version helpers + list-row tweaks
+ * ----------------------------------------------------------------------- */
+if ( ! defined('PROBOT_VERSION') ) {
+  $data = get_file_data(__FILE__, ['Version' => 'Version'], false);
+  define('PROBOT_VERSION', $data['Version']); // e.g. "1.5.7-beta" or "1.5.7"
+}
+
+if ( ! function_exists('pbot_version_display') ) {
+  function pbot_version_display(){
+    // show "1.5.7" instead of "1.5.7-beta/rc/alpha"
+    return preg_replace('/-(beta|alpha|rc\d*)$/i', '', PROBOT_VERSION);
+  }
+}
+if ( ! function_exists('pbot_version_is_beta') ) {
+  function pbot_version_is_beta(){ return (stripos(PROBOT_VERSION, 'beta') !== false); }
+}
+if ( ! function_exists('pbot_version_label') ) {
+  function pbot_version_label(){ return pbot_version_is_beta() ? 'Beta' : 'Stable'; }
+}
+if ( ! function_exists('pbot_version_color') ) {
+  function pbot_version_color(){ return pbot_version_is_beta() ? '#d97b00' : '#22863a'; }
+}
+
+/* Make the Plugins list show: "Version: 1.5.7" (no -beta) */
+add_filter('all_plugins', function($plugins){
+  $base = plugin_basename(PROBOT_FILE);
+  if (isset($plugins[$base])) {
+    $plugins[$base]['Version'] = pbot_version_display();
+  }
+  return $plugins;
+});
+
+/* Add a single badge that ONLY says "Beta" (orange) or "Stable" (green) */
+add_filter('plugin_row_meta', function($meta, $file){
+  if ($file !== plugin_basename(PROBOT_FILE)) return $meta;
+
+  // Append our short badge at the end of the meta row
+  $meta[] = sprintf(
+    '<span class="pbot-badge%s" style="background:%s;color:#fff;padding:2px 8px;border-radius:4px;font-size:12px;line-height:1.6;vertical-align:middle;">%s</span>',
+    pbot_version_is_beta() ? ' is-beta' : '',
+    esc_attr(pbot_version_color()),
+    esc_html(pbot_version_label()) // "Beta" or "Stable"
+  );
+  return $meta;
+}, 10, 2);
 
 /* --------------------------------------------------------------------------
  * Helpers
