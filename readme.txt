@@ -4,7 +4,7 @@ Tags: chatbot, assistant, AI, customer support, fuzzy match, WordPress assistant
 Requires at least: 5.5
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.5.6-dev-stable
+Stable tag: 1.5.7
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -49,10 +49,17 @@ Yes. Use the native color pickers or paste values (hex/RGB/RGBA). You can also t
 
 == Changelog ==
 
-= 1.5.7-dev-testing (2025-08-27) =
-* Updater prefers **release asset ZIP** (`probot-assistant.zip`) over GitHub `zipball_url`.
-* Auto-reactivate plugin post-update if it was active prior.
-* Normalizes extracted folder name to `probot-assistant/` during update to avoid “Package could not be installed.”
+= 1.5.7 (2025-08-31) =
+* **Admin polish:**
+  - Bubble position wrapped in bordered block with inline radios
+  - Matching (fuzzy threshold) wrapped in bordered block with cleaner label
+  - Greeting typing delay wrapped in bordered block with proper spacing
+  - Fixed helper text spacing (e.g., "0 = very loose") to match other controls
+* **Sound fixes:**
+  - Greeting plays one ding after reopen/minimize
+  - Responses now play exactly one ding (no double sounds)
+  - Sound suppressed correctly when closed/minimized
+* **Stable milestone** — all admin + frontend polish from 1.5.6 now fully stabilized.
 
 = 1.5.6-dev-stable (2025-08-24) =
 * Split admin into drop-ins:
@@ -114,28 +121,6 @@ Yes. Use the native color pickers or paste values (hex/RGB/RGBA). You can also t
 * Mobile-first overlay; desktop popup.
 * Admin Settings screen (brand, halo, panel, sound, teaser).
 
-= 1.4.0 (2025-07-20) =
-* Modernized chat bubble & icon buttons.
-* Added teaser toast default copy.
-
-= 1.3.0 (2025-07-10) =
-* More reliable scroll-to-bottom handling.
-* ARIA labels for accessibility.
-
-= 1.2.0 (2025-07-01) =
-* Better mobile keyboard handling.
-* Fixed chat input clipping.
-
-= 1.1.0 (2025-06-20) =
-* Admin options for brand title, bubble side, and toggles.
-* Typing dots animation.
-
-= 1.0.0 (2025-06-01) =
-* Floating bubble + chat panel.
-* Static responses.
-* Minimal CSS + vanilla JS.
-* WordPress plugin scaffolding.
-
 == Roadmap ==
 
 = 1.5.x (Polish series) =
@@ -149,8 +134,8 @@ Ongoing polish and UX tightening across 1.5.6 → 1.5.9 as needed to keep the fr
 
 == Upgrade Notice ==
 
-= 1.5.7-dev-testing =
-Improves updater reliability, prefers GitHub release asset, fixes “Package could not be installed.”
+= 1.5.7 =
+Stabilizes all frontend and admin polish. Fixes double dings, greeting/reply sound logic, and adds bordered blocks for key settings.
 
 = 1.5.6-dev-stable =
 Splits admin into modular drop-ins for easier maintenance.
