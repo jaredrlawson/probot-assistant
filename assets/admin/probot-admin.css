@@ -306,3 +306,26 @@ select.pbot-select{ min-width:320px; max-width:100%; }
 .pbot-route-option .pbot-badge{
   margin-left:6px;
 }
+
+/* ==== ProBot: version badge (admin header + plugin row) ==== */
+.pbot-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:.35em;
+  padding:2px 8px;
+  border-radius:6px;
+  font-size:12px;
+  line-height:1.6;
+  font-weight:600;
+  vertical-align:middle;
+  white-space:nowrap;
+}
+
+/* color variants (semantic) */
+.pbot-badge.is-stable{ background:#22863a; color:#fff; }
+.pbot-badge.is-beta  { background:#d97b00; color:#fff; }
+.pbot-badge.is-rc    { background:#7353ba; color:#fff; }
+.pbot-badge.is-alpha { background:#6b7280; color:#fff; }
+
+/* small utility if you ever need tighter spacing next to titles */
+.pbot-badge.ml-8{ margin-left:8px; }
