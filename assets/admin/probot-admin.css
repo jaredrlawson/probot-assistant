@@ -218,3 +218,91 @@ select.pbot-select{ min-width:320px; max-width:100%; }
 .pbot-badge.is-beta{
   background:#d97b00; /* beta */
 }
+
+/* Writer page: keep inputs 100% width and prevent horizontal scroll */
+.pbot-writer .pbot-row input[type="text"],
+.pbot-writer .pbot-row input[type="number"],
+.pbot-writer .pbot-row input[type="password"],
+.pbot-writer .pbot-row .regular-text,
+.pbot-writer .pbot-row select,
+.pbot-writer .pbot-row textarea {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+/* Route messages: show only the active one (set by PHP; JS may toggle later) */
+.pbot-writer .pbot-route-msgs > div { display: none; }
+.pbot-writer .pbot-route-msgs > div.is-active { display: block; }
+
+/* Spacing under the form controls */
+.pbot-writer .pbot-route-msgs { margin-top: 8px; }
+
+/* Align the credits value (∞ or numbers) nicely on the baseline */
+.pbot-writer .pbot-credits-left {
+  display: inline-block;
+  position: relative;
+  top: -1px; /* tweak to -2px or 0 if you want slightly higher/lower */
+  line-height: 1;
+}
+
+/* Category dropdown and any long selects */
+.pbot-writer select { max-width: 100%; }
+
+/* Hide route messages by default; JS will reveal the active one */
+.pbot-writer #pbot_route_msg_api,
+.pbot-writer #pbot_route_msg_credits {
+  display: none;
+}
+
+/* Spacing for the route messages wrapper (replaces inline margin) */
+.pbot-writer .pbot-route-msgs {
+  margin-top: 8px;
+}
+
+/* Keep the remaining-credits value (numbers or ∞) visually centered */
+.pbot-writer .pbot-credits-left {
+  display: inline-block;
+  position: relative;
+  top: -1px;    /* adjust to -2px or 0 if you want a hair higher/lower */
+  line-height: 1;
+}
+
+/* Make sure rows stack neatly on narrow screens */
+@media (max-width: 900px) {
+  .pbot-writer .pbot-row { flex-direction: column; align-items: stretch; }
+  .pbot-writer .pbot-row > label:first-child { margin-bottom: 4px; }
+}
+
+/* --- Writer page utility classes (moved from inline styles) --- */
+.pbot-mt-0  { margin-top: 0 !important; }
+.pbot-mt-8  { margin-top: 8px !important; }
+.pbot-mt-10 { margin-top: 10px !important; }
+.pbot-mt-12 { margin-top: 12px !important; }
+
+/* Textarea height utilities */
+.pbot-textarea-lg { min-height: 120px; }
+.pbot-textarea-md { min-height: 110px; }
+
+/* Inline checkbox/label helper (for "Let AI choose the category") */
+.pbot-check-inline { display: flex; align-items: center; gap: 6px; }
+
+/* Writer: vertical radio layout, aligned badges */
+.pbot-route-group{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.pbot-route-option{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  line-height:1.4;
+}
+.pbot-route-option input[type="radio"]{
+  margin-right:4px;
+}
+.pbot-route-option .pbot-badge{
+  margin-left:6px;
+}
