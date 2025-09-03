@@ -1,6 +1,6 @@
 === ProBot Assistant ===
 Contributors: Jared Я Lawson
-Tags: chatbot, assistant, AI, customer support, virtual receptionist, WordPress AI
+Tags: chatbot, assistant, AI, customer support, fuzzy match, WordPress assistant
 Requires at least: 5.5
 Tested up to: 6.6
 Requires PHP: 7.4
@@ -8,74 +8,67 @@ Stable tag: 1.5.7
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-ProBot Assistant is an **AI-powered business assistant** for WordPress.  
-It combines a floating chat bubble, knowledge base, AI article writer, and now **phone answering credits** — helping businesses cut costs and scale support.
+ProBot Assistant is a lightweight, customizable **WordPress chatbot plugin**.  
+It gives your site a floating chat bubble, teaser toast, JSON-driven knowledge base,  
+and admin tools to manage responses — all mobile-first and responsive.
 
 == Description ==
 
-ProBot isn’t just another chatbot. It’s designed as an **AI-powered assistant** for business owners:
+ProBot Assistant lets you add an interactive chat bubble to your site with:
 
-- 🟢 Floating chat bubble with **pulse halo** + teaser toast
-- 🟢 JSON-driven knowledge base with Import/Export
-- 🟢 Manual Q/A editor in WP Admin
-- 🟢 Fuzzy matching + adjustable threshold
+- 🟢 Floating chat bubble (left/right) with **pulse halo** and teaser toast
+- 🟢 JSON-driven knowledge base (packaged or manual upload)
+- 🟢 Manual Q/A editor with Import/Export in WP Admin
+- 🟢 Fuzzy matching (adjustable threshold)
 - 🟢 Greeting with typing delay effect
 - 🟢 Sound notifications (toggleable)
-- 🟢 **Mobile-first fullscreen** (phones), **popup** (desktop)
-- 🟢 Color customization via pickers or CSS vars
+- 🟢 **Mobile-first fullscreen** on phones, **desktop popup** on larger screens
+- 🟢 Color customization (bubble, halo, panel, toast) via pickers or CSS vars
 - 🟢 Halo & pulse intensity sliders
-- 🟢 Built-in GitHub self-updater
-- 🟢 **License + Product Key system** (paid tiers unlock AI features)
-- 🟢 Dual credits: **Writer Credits** + **Phone Credits**
-- 🟢 Article Writer (beta): generates posts from prompts
-- 🟢 AI Answering (beta): Twilio integration for call capture & handoff
+- 🟢 Built-in GitHub self-updater (release-based)
+- 🟢 Article Writer **preview** (1.6.0 full rollout planned)
 
-Businesses can use ProBot as:
-- Customer support chatbot  
-- FAQ + knowledge base  
-- AI receptionist (call capture, message forwarding)  
-- Content writer (SEO articles, blog posts)  
-- Lead generator (chat → CRM handoff)  
+Perfect for customer support, FAQs, lead gen, and beyond.
 
 == Installation ==
 
 1. Upload the `probot-assistant` folder to `/wp-content/plugins/`
 2. Activate the plugin in WordPress → Plugins
-3. Configure via **ProBot Assistant** in WP Admin
-4. (Optional) Enter your **Product Key** to unlock AI features
+3. Configure via **ProBot Assistant** in the WP Admin menu
 
 == Frequently Asked Questions ==
 
-= Do I need an API key? =
-No for the free core features. Paid plans use a **Product Key** to unlock credits (writer + phone). API integration (e.g., OpenAI, Twilio) is handled for you.
+= Where do I put my intents? =
+Go to **ProBot Assistant → Knowledge Base**. Choose **Packaged** (ships with the plugin) or **Manual** (paste/edit JSON). You can import/export JSON from there.
 
-= Can ProBot really answer calls? =
-Yes — via Twilio integration. Free version shows the UI; phone answering requires a paid key with phone credits.
+= Does it need an API key? =
+No for the base plugin. Option fields exist for future add-ons (e.g., OpenAI fallback) but they’re optional.
 
-= Is this just a chatbot? =
-No. ProBot is positioned as an **AI-powered business assistant** — answering, writing, and supporting leads.
+= Can I customize colors? =
+Yes. Use the native color pickers or paste values (hex/RGB/RGBA). You can also tweak advanced CSS variables if you want deeper styling.
+
+== Stable vs Beta/RC ==
+
+- **Stable tag (WordPress.org)** → Always points to the last **production-ready version**.  
+  Example: `1.5.7` is the current stable release.  
+
+- **Beta / RC (GitHub prereleases)** → Feature builds and testing milestones.  
+  Example: `1.6.0-beta.1` introduces Article Writer scaffolding + licensing.  
+
+- **How updates work:**  
+  • By default, sites only receive stable updates (`1.5.x`).  
+  • Testers can opt into betas/RCs by enabling prereleases in the updater or pulling GitHub prereleases.  
+
+This ensures production sites stay safe on stable, while testers can trial new features ahead of time.
 
 == Changelog ==
 
-= 1.6.0-beta.1 — 2025-09-03 =
-* 🚀 Major new milestone: **paid feature line begins**
-* Added **license + product key system** (integrates with Square)
-* Dual credit buckets: **writer credits** + **phone credits**
-* REST API now supports `channel=writer|phone` for usage increment
-* Admin UI:
-  - Create Keys: writer + phone limits
-  - Existing Keys: desktop table + mobile cards with dual metrics
-* Article Writer: expanded beta groundwork
-* AI Answering (Twilio): initial beta scaffolding
-* This is the first **Beta release** of 1.6.0 (not yet RC/stable)
-
-= 1.5.8 (Stable) — 2025-09-01 =
-* Added **Product Key integration groundwork**  
-  - Keys now validated against license server  
-  - Free vs Starter vs Pro tiers displayed in admin  
-  - Usage credits deducted for Article Writer previews  
-* Mobile UI for license management polished (cards instead of table)  
-* Preserves backward compatibility for all free features
+= 1.5.8 (Beta.1) — 2025-09-03 =
+* First **1.6.0 prerelease** milestone.  
+* Adds prerelease badge support: admin header shows exact prerelease (e.g., `v1.6.0 Beta.1`).  
+* Internal version helpers (`pbot_version_phase`, `pbot_version_prerelease`) to properly parse `alpha`, `beta.n`, `rc.n`.  
+* Refined settings page badge display to show prerelease labels consistently.  
+* This is a **Beta build** — not intended for production sites.
 
 = 1.5.7 (Stable) — 2025-08-31 =
 * Introduced **unified version badge system**:  
@@ -145,23 +138,49 @@ No. ProBot is positioned as an **AI-powered business assistant** — answering, 
 * Mobile-first overlay; desktop popup.
 * Admin Settings screen (brand, halo, panel, sound, teaser).
 
+= 1.4.0 — 2025-07-20 =
+* Modernized chat bubble & icon buttons.
+* Added teaser toast default copy.
+
+= 1.3.0 — 2025-07-10 =
+* More reliable scroll-to-bottom handling.
+* ARIA labels for accessibility.
+
+= 1.2.0 — 2025-07-01 =
+* Better mobile keyboard handling.
+* Fixed chat input clipping.
+
+= 1.1.0 — 2025-06-20 =
+* Admin options for brand title, bubble side, and toggles.
+* Typing dots animation.
+
+= 1.0.0 — 2025-06-01 =
+* Floating bubble + chat panel.
+* Static responses.
+* Minimal CSS + vanilla JS.
+* WordPress plugin scaffolding.
+
 == Roadmap ==
 
-= 1.6.0 (AI Business Assistant) =
-- Full Article Writer rollout (multi-tier credits, categories, scheduling)
-- AI Answering (Twilio call capture + message forwarding)
-- Lead gen handoff (email/CRM)
-- Upsell system (Upgrade → Plans in WP Admin)
-- Live Chat operator patch-through
-- Email campaigns (MailChimp/SendGrid integrations)
+= 1.5.x (Polish series) =
+Ongoing polish and UX tightening across 1.5.6 → 1.5.9 as needed to keep the free branch rock-solid.
 
-= 1.5.x (Legacy free polish) =
-Polish-only branch for the free chatbot core.
+= 1.6.0 (Paid features begin) =
+- Article Writer (full): monthly/weekly/bi-weekly cadence locks by tier, title generation, 800–1000 words, optional AI category
+- License/Product key & OpenAI key integration (paid upgrades)
+- Additional pro UI refinements and update/notice improvements
+- Planned add-ons: lead capture, Square payments, dark mode
 
 == Upgrade Notice ==
 
-= 1.6.0-beta.1 =
-First **Beta release** of the AI-powered assistant line. Adds license/product key, dual credits (writer + phone), Article Writer/AI Answering groundwork.
+= 1.5.8 (Beta.1) =
+Introduces prerelease badge system with proper beta numbering, adds Article Writer licensing groundwork, and refines admin display. For testing only.
 
-= 1.5.8 (Stable) =
-Product Key groundwork for writer credits. Lays foundation for paid features.
+= 1.5.7 (Stable) =
+Adds unified version badges (Plugins list + Settings page), cleans up version strings, and confirms updater/admin polish.
+
+= 1.5.6 (Stable) =
+Splits admin into modular drop-ins for easier maintenance.
+
+= 1.5.5 (Stable) =
+Stable milestone. Color pickers, halo/pulse intensity, KB improvements, and admin “Settings saved” banner.
