@@ -2,9 +2,17 @@
 <div class="wrap pbot-wrap pbot-settings">
   <h1>
     ProBot Assistant — Settings
-    <span class="pbot-badge<?php echo pbot_version_is_beta() ? ' is-beta' : ''; ?>" style="margin-left:8px;">
-      v<?php echo esc_html( pbot_version_display() ); ?><?php echo pbot_version_is_beta() ? ' Beta' : ''; ?>
-    </span>
+    <?php
+      // Defensive helpers so badge works even if prerelease helpers aren’t loaded yet.
+      $version_clean = function_exists('pbot_version_display') ? pbot_version_display() : (defined('PROBOT_VERSION') ? preg_replace('/-(alpha|beta|rc(\.\d+)?)$/i','',PROBOT_VERSION) : '');
+      $is_beta       = function_exists('pbot_version_is_beta') ? pbot_version_is_beta() : (defined('PROBOT_VERSION') && stripos(PROBOT_VERSION,'beta') !== false);
+      $phase         = function_exists('pbot_version_phase') ? pbot_version_phase() : ($is_beta ? 'beta' : 'stable'); // 'alpha'|'beta'|'rc'|'stable'
+      $pre           = function_exists('pbot_version_prerelease') ? pbot_version_prerelease() : ($is_beta ? 'beta' : '');
+      // Build badge class + text. If pre like "beta.1" exists, we show it; else fallback to "Beta".
+      $badge_class   = 'pbot-badge ml-8 is-' . esc_attr($phase);
+      $badge_text    = 'v' . $version_clean . ( $pre ? ' ' . strtoupper($pre) : ($is_beta ? ' Beta' : '') );
+    ?>
+    <span class="<?php echo esc_attr($badge_class); ?>"><?php echo esc_html($badge_text); ?></span>
   </h1>
 
   <?php
@@ -36,16 +44,16 @@
       </div>
 
       <fieldset class="pbot-fieldset">
-  <legend>Bubble position</legend>
-  <div class="pbot-inline">
-    <label class="pbot-inline-item">
-      <input type="radio" name="pbot_bubble_position" value="left"  <?php checked($pos,'left');  ?>> Left
-    </label>
-    <label class="pbot-inline-item">
-      <input type="radio" name="pbot_bubble_position" value="right" <?php checked($pos,'right'); ?>> Right
-    </label>
-  </div>
-</fieldset>
+        <legend>Bubble position</legend>
+        <div class="pbot-inline">
+          <label class="pbot-inline-item">
+            <input type="radio" name="pbot_bubble_position" value="left"  <?php checked($pos,'left');  ?>> Left
+          </label>
+          <label class="pbot-inline-item">
+            <input type="radio" name="pbot_bubble_position" value="right" <?php checked($pos,'right'); ?>> Right
+          </label>
+        </div>
+      </fieldset>
 
       <fieldset class="pbot-fieldset">
         <legend>Visuals &amp; Behavior</legend>
@@ -147,10 +155,7 @@
         </div>
       </fieldset>
 
-      <?php
-      // 🔌 Hook point for add-ons to inject fields BEFORE the Buttons section.
-      do_action('pbot_admin_settings_before_buttons', $ctx);
-      ?>
+      <?php do_action('pbot_admin_settings_before_buttons', $ctx); ?>
 
       <!-- === Buttons styling === -->
       <fieldset class="pbot-fieldset">
@@ -192,30 +197,30 @@
       </fieldset>
 
       <fieldset class="pbot-fieldset">
-  <legend>Matching</legend>
-  <div class="pbot-row">
-    <label for="pbot_match_threshold"><strong>Fuzzy match threshold</strong></label>
-    <input type="number" id="pbot_match_threshold" name="pbot_match_threshold"
-           class="pbot-num-mid pbot-auto-num"
-           min="0" max="1" step="0.01"
-           value="<?php echo esc_attr($thresh); ?>" />
-    <div class="pbot-muted" style="margin-top:8px;">0 = very loose, 1 = very strict (default 0.52)</div>
-  </div>
-</fieldset>
+        <legend>Matching</legend>
+        <div class="pbot-row">
+          <label for="pbot_match_threshold"><strong>Fuzzy match threshold</strong></label>
+          <input type="number" id="pbot_match_threshold" name="pbot_match_threshold"
+                 class="pbot-num-mid pbot-auto-num"
+                 min="0" max="1" step="0.01"
+                 value="<?php echo esc_attr($thresh); ?>" />
+          <div class="pbot-muted" style="margin-top:8px;">0 = very loose, 1 = very strict (default 0.52)</div>
+        </div>
+      </fieldset>
 
       <fieldset class="pbot-fieldset">
-    <legend>Greeting</legend>
-    <div class="pbot-row">
-      <label for="pbot_greeting_delay_ms"><strong>Greeting typing delay (min ms)</strong></label>
-      <input type="number" id="pbot_greeting_delay_ms" name="pbot_greeting_delay_ms"
-             class="pbot-num-mid pbot-auto-num"
-             min="0" step="50"
-             value="<?php echo esc_attr($gDelay); ?>" />
-      <div class="pbot-muted" style="margin-top:6px;">
-        Minimum typing-dots time before the greeting shows.
-      </div>
-    </div>
-  </fieldset>
+        <legend>Greeting</legend>
+        <div class="pbot-row">
+          <label for="pbot_greeting_delay_ms"><strong>Greeting typing delay (min ms)</strong></label>
+          <input type="number" id="pbot_greeting_delay_ms" name="pbot_greeting_delay_ms"
+                 class="pbot-num-mid pbot-auto-num"
+                 min="0" step="50"
+                 value="<?php echo esc_attr($gDelay); ?>" />
+          <div class="pbot-muted" style="margin-top:6px;">
+            Minimum typing-dots time before the greeting shows.
+          </div>
+        </div>
+      </fieldset>
 
       <fieldset class="pbot-fieldset">
         <legend>Keys (for paid features)</legend>
@@ -233,10 +238,7 @@
         </div>
       </fieldset>
 
-      <?php
-      // 🔌 Hook point for add-ons to inject sections at the end of the form.
-      do_action('pbot_admin_settings_after_form', $ctx);
-      ?>
+      <?php do_action('pbot_admin_settings_after_form', $ctx); ?>
 
       <div class="pbot-actions-bar">
         <?php submit_button('Save Settings', 'primary', 'submit', false); ?>
