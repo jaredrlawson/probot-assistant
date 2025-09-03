@@ -2,7 +2,7 @@
 /**
  * Plugin Name: ProBot Assistant
  * Description: Front-end chat assistant with teaser, JSON intents (packaged or manual), fuzzy matching, and admin Knowledge Base manager.
- * Version: 1.5.7
+ * Version: 1.6.0-beta.1
  * Author: Jared Я Lawson
  * License: GPLv2 or later
  */
@@ -14,48 +14,57 @@ define('PROBOT_PATH', plugin_dir_path(__FILE__));
 define('PROBOT_URL',  plugin_dir_url(__FILE__));
 
 /* --------------------------------------------------------------------------
- * Version helpers + list-row tweaks
+ * Version helpers (supports alpha/beta/rc with numbers, e.g. 1.6.0-beta.1)
  * ----------------------------------------------------------------------- */
 if ( ! defined('PROBOT_VERSION') ) {
   $data = get_file_data(__FILE__, ['Version' => 'Version'], false);
-  define('PROBOT_VERSION', $data['Version']); // e.g. "1.5.7-beta" or "1.5.7"
+  define('PROBOT_VERSION', $data['Version']); // e.g. "1.6.0-beta.1"
 }
 
 if ( ! function_exists('pbot_version_display') ) {
   function pbot_version_display(){
-    // show "1.5.7" instead of "1.5.7-beta/rc/alpha"
-    return preg_replace('/-(beta|alpha|rc\d*)$/i', '', PROBOT_VERSION);
+    // Strip prerelease suffix for the plain version
+    return preg_replace('/-(alpha|beta|rc)(?:\.\d+)?$/i', '', PROBOT_VERSION);
+  }
+}
+if ( ! function_exists('pbot_version_phase') ) {
+  // Returns 'alpha' | 'beta' | 'rc' | 'stable'
+  function pbot_version_phase(){
+    if (preg_match('/-alpha(?:\.\d+)?$/i', PROBOT_VERSION)) return 'alpha';
+    if (preg_match('/-beta(?:\.\d+)?$/i',  PROBOT_VERSION)) return 'beta';
+    if (preg_match('/-rc(?:\.\d+)?$/i',    PROBOT_VERSION)) return 'rc';
+    return 'stable';
+  }
+}
+if ( ! function_exists('pbot_version_prerelease') ) {
+  // Returns normalized label like "Beta 1", "RC 2", or '' for stable
+  function pbot_version_prerelease(){
+    if (preg_match('/-(alpha|beta|rc)(?:\.(\d+))?$/i', PROBOT_VERSION, $m)) {
+      $type = ucfirst(strtolower($m[1]));         // Alpha/Beta/RC
+      $n    = isset($m[2]) ? (int)$m[2] : 0;      // 1,2,... (optional)
+      return $n ? "{$type} {$n}" : $type;
+    }
+    return '';
   }
 }
 if ( ! function_exists('pbot_version_is_beta') ) {
-  function pbot_version_is_beta(){ return (stripos(PROBOT_VERSION, 'beta') !== false); }
-}
-if ( ! function_exists('pbot_version_label') ) {
-  function pbot_version_label(){ return pbot_version_is_beta() ? 'Beta' : 'Stable'; }
-}
-if ( ! function_exists('pbot_version_color') ) {
-  function pbot_version_color(){ return pbot_version_is_beta() ? '#d97b00' : '#22863a'; }
+  function pbot_version_is_beta(){ return pbot_version_phase() === 'beta'; }
 }
 
-/* Make the Plugins list show: "Version: 1.5.7" (no -beta) */
+/* Plugins list: show plain version, and a short status badge */
 add_filter('all_plugins', function($plugins){
-  $base = plugin_basename(PROBOT_FILE);
-  if (isset($plugins[$base])) {
-    $plugins[$base]['Version'] = pbot_version_display();
-  }
+  $base = plugin_basename(__FILE__);
+  if (isset($plugins[$base])) $plugins[$base]['Version'] = pbot_version_display();
   return $plugins;
 });
-
-/* Add a single badge that ONLY says "Beta" (orange) or "Stable" (green) */
 add_filter('plugin_row_meta', function($meta, $file){
-  if ($file !== plugin_basename(PROBOT_FILE)) return $meta;
-
-  // Append our short badge at the end of the meta row
+  if ($file !== plugin_basename(__FILE__)) return $meta;
+  $phase = pbot_version_phase();
+  $label = ($phase === 'stable') ? 'Stable' : strtoupper($phase); // Alpha/Beta/RC
+  $color = ($phase === 'alpha') ? '#6f42c1' : (($phase === 'beta') ? '#d97b00' : (($phase === 'rc') ? '#0a7ea4' : '#22863a'));
   $meta[] = sprintf(
-    '<span class="pbot-badge%s" style="background:%s;color:#fff;padding:2px 8px;border-radius:4px;font-size:12px;line-height:1.6;vertical-align:middle;">%s</span>',
-    pbot_version_is_beta() ? ' is-beta' : '',
-    esc_attr(pbot_version_color()),
-    esc_html(pbot_version_label()) // "Beta" or "Stable"
+    '<span class="pbot-badge is-%s" style="background:%s;color:#fff;padding:2px 8px;border-radius:4px;font-size:12px;line-height:1.6;">%s</span>',
+    esc_attr($phase), esc_attr($color), esc_html($label)
   );
   return $meta;
 }, 10, 2);
@@ -197,9 +206,16 @@ add_action('wp_enqueue_scripts', function () {
  * Admin assets
  * ----------------------------------------------------------------------- */
 add_action('admin_enqueue_scripts', function($hook){
-  if (strpos($hook, 'probot-assistant') === false) return;
+  // Load our admin CSS/JS on ProBot admin pages and on Plugins list (so badges style correctly)
+  $is_probot_screen = (strpos($hook, 'probot-assistant') !== false);
+  $is_plugins_list  = in_array($hook, array('plugins.php','plugin-install.php'), true);
+
+  if ( ! $is_probot_screen && ! $is_plugins_list ) return;
+
   wp_enqueue_style('pbot-admin', pbot_url('assets/admin/probot-admin.css'), array(), probot_asst_asset_ver('assets/admin/probot-admin.css'));
-  wp_enqueue_script('pbot-admin', pbot_url('assets/admin/probot-admin.js'), array('jquery'), probot_asst_asset_ver('assets/admin/probot-admin.js'), true);
+  if ( $is_probot_screen ) {
+    wp_enqueue_script('pbot-admin', pbot_url('assets/admin/probot-admin.js'), array('jquery'), probot_asst_asset_ver('assets/admin/probot-admin.js'), true);
+  }
 });
 
 /* --------------------------------------------------------------------------
@@ -339,35 +355,23 @@ add_action('admin_init', function () {
 });
 
 /* --------------------------------------------------------------------------
- * Includes (drop-ins)
- * ----------------------------------------------------------------------- */
-
-/* --------------------------------------------------------------------------
  * Optional GitHub self-updater (drop-in)
  * ----------------------------------------------------------------------- */
 if ( is_admin() ) {
   add_action('admin_init', function () {
-    // must be in wp-admin and able to update plugins
     if ( ! current_user_can('update_plugins') ) return;
-
-    // include class file if present
     $updater_file = pbot_path('includes/class-pbot-self-updater.php');
     if ( ! file_exists($updater_file) ) return;
     require_once $updater_file;
-
-    // instantiate once
     if ( ! class_exists('PBot_Self_Updater') ) return;
     if ( isset($GLOBALS['pbot_updater']) && $GLOBALS['pbot_updater'] instanceof PBot_Self_Updater ) return;
 
     $GLOBALS['pbot_updater'] = new PBot_Self_Updater([
       'file' => PROBOT_FILE,
-      'slug' => plugin_basename(PROBOT_FILE), // e.g. probot-assistant/probot-assistant.php
+      'slug' => plugin_basename(PROBOT_FILE),
       'user' => 'jaredrlawson',
       'repo' => 'probot-assistant',
-      // Toggle prerelease support:
-      // true = pull betas/RCs as updates,
-      // false = only stable releases
-      'include_prereleases' => true,
+      'include_prereleases' => true, // allow -beta.1 etc
     ]);
   }, 1);
 }
@@ -387,13 +391,16 @@ if ( file_exists( pbot_path('includes/article-writer-register.php') ) ) {
 if ( file_exists( pbot_path('includes/admin-article-writer.php') ) ) {
   require_once pbot_path('includes/admin-article-writer.php');
 } else {
-  // Fallback placeholder so the submenu callback won't fatal if file is missing
   if ( ! function_exists('probot_render_article_writer_page') ) {
     function probot_render_article_writer_page(){
       echo '<div class="wrap"><h1>Article Writer</h1><p>Missing <code>includes/admin-article-writer.php</code>.</p></div>';
     }
   }
 }
+
+// === AI Answering (Twilio) ===
+require_once __DIR__ . '/includes/admin-answering-register.php';
+require_once __DIR__ . '/includes/admin-answering-page.php';
 
 // // TEMP: manual flush for the self-updater cache
 add_action('admin_init', function () {
