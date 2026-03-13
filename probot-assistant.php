@@ -90,6 +90,7 @@ function pbot_path($rel){ return PROBOT_PATH . pbot_rel($rel); }
  * ----------------------------------------------------------------------- */
 register_activation_hook(PROBOT_FILE, function () {
   add_option('pbot_brand_title',       'ProBot Assistant');
+  add_option('pbot_bubble_icon',        'original');
   add_option('pbot_bubble_position',   'right');
   add_option('pbot_pulse_enabled',     1);
   add_option('pbot_teaser_enabled',  1);
@@ -159,7 +160,7 @@ add_action('wp_enqueue_scripts', function () {
   $js_rel  = 'assets/frontend/probot-assistant.js';
   
   // Hard version bust for Beta 3 Cross-Browser Sync
-  $ver = probot_asst_asset_ver($js_rel) . '.1609'; 
+  $ver = probot_asst_asset_ver($js_rel) . '.1610'; 
 
   wp_enqueue_style('probot-assistant-css', pbot_url($css_rel), array(), $ver);
   wp_enqueue_script('probot-assistant-js', pbot_url($js_rel), array('jquery'), $ver, true);
@@ -184,7 +185,7 @@ add_action('wp_enqueue_scripts', function () {
     'plugin_url'         => pbot_url(''),
     'nonce'              => wp_create_nonce('probot_nonce'),
     'brand_title'        => get_option('pbot_brand_title', 'ProBot Assistant'),
-    'bubble_icon'        => get_option('pbot_bubble_icon', 'chat'),
+    'bubble_icon'        => get_option('pbot_bubble_icon', 'original'),
     'bubble_position'    => get_option('pbot_bubble_position', 'right'),
     'pulse_enabled'      => (bool) get_option('pbot_pulse_enabled', 1),
     'teaser_enabled'     => (bool) get_option('pbot_teaser_enabled', 1),
@@ -243,7 +244,7 @@ add_action('admin_enqueue_scripts', function($hook){
 
   if ( ! $is_probot_screen && ! $is_plugins_list ) return;
 
-  $ver = probot_asst_asset_ver('assets/admin/probot-admin.js') . '.1609';
+  $ver = probot_asst_asset_ver('assets/admin/probot-admin.js') . '.1610';
 
   wp_enqueue_style('pbot-admin', pbot_url('assets/admin/probot-admin.css'), array(), $ver);
   if ( $is_probot_screen ) {

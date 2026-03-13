@@ -146,14 +146,12 @@ jQuery(function ($) {
   const sideCSS  = sideIsLeft ? 'left:20px; right:auto;' : 'right:20px; left:auto;';
 
   const icons = {
-    'chat':         '<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>',
-    'robot':        '<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"></rect><circle cx="12" cy="5" r="2"></circle><path d="M12 7v4"></path><line x1="8" y1="16" x2="8" y2="16"></line><line x1="16" y1="16" x2="16" y2="16"></line></svg>',
-    'sparkles':     '<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.912 5.813a2 2 0 001.275 1.275L21 12l-5.813 1.912a2 2 0 00-1.275 1.275L12 21l-1.912-5.813a2 2 0 00-1.275-1.275L3 12l5.813-1.912a2 2 0 001.275-1.275L12 3z"></path><path d="M5 3l1 1"></path><path d="M19 3l-1 1"></path><path d="M5 21l1-1"></path><path d="M19 21l-1-1"></path></svg>',
-    'crystal-ball': '<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="10" r="8"></circle><path d="M12 18v4"></path><path d="M8 22h8"></path><path d="M12 7v1"></path></svg>',
-    'magic-wand':   '<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4l2 2"></path><path d="M19 8l2 2"></path><path d="M20 2l1 1"></path><path d="M11 7l9 9-4 4-9-9 4-4z"></path><path d="M3 21l4-4"></path></svg>'
+    'none':     '',
+    'original': '<svg viewBox="0 0 24 24" width="28" height="28" fill="none"><path d="M4 5h16v10H7l-3 3V5z" fill="currentColor"></path></svg>',
+    'robot':    '<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"></rect><circle cx="12" cy="5" r="2"></circle><path d="M12 7v4"></path><line x1="8" y1="16" x2="8" y2="16"></line><line x1="16" y1="16" x2="16" y2="16"></line></svg>'
   };
 
-  const selectedIcon = icons[cfg.bubble_icon] || icons['chat'];
+  const selectedIcon = icons[cfg.bubble_icon] || icons['original'];
 
   $('body').append(`
     <div id="probot-chat-overlay" aria-hidden="true" style="display:none;">
