@@ -81,7 +81,7 @@
 
       // Fallbacks for missing local assets during recovery
       const fallbacks = {
-          'mystical-chime':    'https://assets.mixkit.co/active_storage/sfx/2361/2361-preview.mp3',
+          'mystical-chime':    'https://assets.mixkit.co/active_storage/sfx/2430/2430-preview.mp3', // Magical Sparkle
           'crystal-ping':      'https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3',
           'soft-notification': 'https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3',
           'digital-pulse':     'https://assets.mixkit.co/active_storage/sfx/2359/2359-preview.mp3'
