@@ -46,7 +46,7 @@ add_action('wp_ajax_pbot_toggle_status', function() {
 
 /**
  * 2. SYNC BOOKING TO HUD
- * Increments Alchemist metrics and logs the new lead.
+ * Increments Business metrics and logs the new lead.
  * 
  * @param array $data {
  *     @type string $phone   Customer phone number.

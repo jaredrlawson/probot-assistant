@@ -321,7 +321,7 @@
        * COMPLIANCE MODAL (Stay Connected)
        * Cedar Point-style lead generation popup.
        */
-      window.pbot_show_compliance_modal = function(source = 'Dashboard', service = 'General') {
+      window.pbot_show_compliance_modal = function(source = 'Business HUD', service = 'General') {
           if (localStorage.getItem('pbot_lead_captured')) return;
 
           const modalHtml = `

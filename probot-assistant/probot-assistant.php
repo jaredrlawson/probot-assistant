@@ -250,7 +250,8 @@ add_action('admin_enqueue_scripts', function($hook){
         'ajax_url'   => admin_url('admin-ajax.php'),
         'nonce'      => wp_create_nonce('probot_nonce'),
         'secret_key' => get_option('pbot_secret_key', ''),
-        'is_online'  => get_option('pbot_vps_online', 0)
+        'is_online'  => get_option('pbot_vps_online', 0),
+        'status'     => get_option('pbot_owner_status', 'online')
     ));
   }
 });

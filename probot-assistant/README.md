@@ -5,12 +5,12 @@ Front-end chat assistant with teaser, JSON intents, fuzzy matching, and deep sit
 ## Changelog
 
 ### 1.6.0-beta.3 — 2026-03-12
-* **🔮 The Alchemist HUD & Lead Generation Upgrade**
-* **Alchemist Business HUD:** Redesigned Answering Dashboard into a high-value business tracker (Leads, Bookings, Chats, Revenue).
+* **🔮 HUD & Lead Generation Upgrade**
+* **Business HUD:** Redesigned Answering Dashboard into a high-value business tracker (Leads, Bookings, Chats, Revenue).
 * **Lead Generation:** Integrated new "New Leads" tracking via SMS Opt-ins.
 * **Live Booking Sync:** Real-time integration with the Alchemy Booking plugin for instant revenue tracking.
 * **Stay Connected Popup:** Cedar Point-style dark-mode compliance modal for phone lead capture.
-* **Alchemist Status Toggle:** Real-time availability switcher (Online/Busy) that informs the AI brain.
+* **Status Toggle:** Real-time availability switcher (Online/Busy) that informs the AI brain.
 * **Brain Upgrade:** Migrated AI core to **Llama 3.3 70B Versatile** for superior Reasoning.
 * **Reactive UI:** Pulse-synced status indicators and full-width edge-to-edge dashboard layout.
 * **UI Customization:** Added "Window Corner Radius" setting for the desktop chat panel.

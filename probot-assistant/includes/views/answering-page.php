@@ -94,28 +94,28 @@
         <!-- RIGHT COLUMN: Main Activity HUD -->
         <div class="pbot-sidebar" style="position: sticky; top: 32px; align-self: start;">
             
-            <!-- Alchemist Business HUD (New Leads & Revenue) -->
-            <div class="pbot-card" style="background: #0d1117; border-color: #30363d; margin-bottom: 20px;">
-                <div class="pbot-card-header" style="border-bottom-color: #30363d;">
-                    <h2 style="color: #58a6ff; display: flex; align-items: center; gap: 8px;">📈 Alchemist Business HUD</h2>
+            <!-- Business HUD (New Leads & Revenue) -->
+            <div class="pbot-card" style="background: #f0f6fc; border-color: #54aeff; margin-bottom: 20px;">
+                <div class="pbot-card-header" style="border-bottom-color: #54aeff;">
+                    <h2 style="color: #0969da; display: flex; align-items: center; gap: 8px;">📈 Business HUD</h2>
                 </div>
                 <div class="pbot-card-body" style="padding-top: 10px;">
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 13px;">
-                        <div style="background: #161b22; padding: 10px; border-radius: 6px; border: 1px solid #30363d; text-align: center;">
-                            <div style="color: #8b949e; font-size: 11px; text-transform: uppercase;">👤 New Leads</div>
-                            <div id="pbot-stat-leads" style="font-size: 20px; font-weight: bold; color: #7ee787;">0</div>
+                        <div style="background: #fff; padding: 10px; border-radius: 6px; border: 1px solid #d0d7de; text-align: center;">
+                            <div style="color: #57606a; font-size: 11px; text-transform: uppercase;">👤 New Leads</div>
+                            <div id="pbot-stat-leads" style="font-size: 20px; font-weight: bold; color: #cf222e;">0</div>
                         </div>
-                        <div style="background: #161b22; padding: 10px; border-radius: 6px; border: 1px solid #30363d; text-align: center;">
-                            <div style="color: #8b949e; font-size: 11px; text-transform: uppercase;">📅 Bookings</div>
-                            <div id="pbot-stat-bookings" style="font-size: 20px; font-weight: bold; color: #58a6ff;">0</div>
+                        <div style="background: #fff; padding: 10px; border-radius: 6px; border: 1px solid #d0d7de; text-align: center;">
+                            <div style="color: #57606a; font-size: 11px; text-transform: uppercase;">📅 Bookings</div>
+                            <div id="pbot-stat-bookings" style="font-size: 20px; font-weight: bold; color: #238636;">0</div>
                         </div>
-                        <div style="background: #161b22; padding: 10px; border-radius: 6px; border: 1px solid #30363d; text-align: center;">
-                            <div style="color: #8b949e; font-size: 11px; text-transform: uppercase;">💬 AI Handled</div>
-                            <div id="pbot-stat-chats" style="font-size: 20px; font-weight: bold; color: #d299ff;">0</div>
+                        <div style="background: #fff; padding: 10px; border-radius: 6px; border: 1px solid #d0d7de; text-align: center;">
+                            <div style="color: #57606a; font-size: 11px; text-transform: uppercase;">💬 AI Handled</div>
+                            <div id="pbot-stat-chats" style="font-size: 20px; font-weight: bold; color: #0969da;">0</div>
                         </div>
-                        <div style="background: #161b22; padding: 10px; border-radius: 6px; border: 1px solid #30363d; text-align: center;">
-                            <div style="color: #8b949e; font-size: 11px; text-transform: uppercase;">💰 Revenue Est.</div>
-                            <div id="pbot-stat-revenue" style="font-size: 20px; font-weight: bold; color: #aff5b4;">$0</div>
+                        <div style="background: #fff; padding: 10px; border-radius: 6px; border: 1px solid #d0d7de; text-align: center;">
+                            <div style="color: #57606a; font-size: 11px; text-transform: uppercase;">💰 Revenue Est.</div>
+                            <div id="pbot-stat-revenue" style="font-size: 20px; font-weight: bold; color: #d97b00;">$0</div>
                         </div>
                     </div>
                 </div>

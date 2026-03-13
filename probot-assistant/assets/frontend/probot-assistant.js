@@ -609,10 +609,11 @@ CONTENT: ${cleanContent}`;
         const cls = m.role === 'bot' ? 'msg bot' : 'msg me';
         const avatar = m.role === 'bot' ? '<div class="avatar" aria-hidden="true">🤖</div>' : '';
         const $m = $(`<div class="${cls}">${avatar}<div class="bubble"></div></div>`);
-        $m.find('.bubble').css({'white-space': 'pre-wrap'}).html(m.content);
+        // Bot messages use normal whitespace to honor HTML structure; 'me' messages use pre-wrap for text
+        const ws = m.role === 'bot' ? 'normal' : 'pre-wrap';
+        $m.find('.bubble').css({'white-space': ws}).html(m.content);
         $body.append($m);
-      });
-      scrollToBottom();
+      });      scrollToBottom();
       ensureScrollable();
     }
 
@@ -739,9 +740,8 @@ CONTENT: ${cleanContent}`;
     // ensure only ONE typing bubble exists
     $body.find('.msg.bot.typing').remove();
     const $typing = $('<div class="msg bot typing"><div class="avatar" aria-hidden="true">🤖</div><div class="bubble"></div></div>');
-    $typing.find('.bubble').css({'white-space': 'pre-wrap'}).html('<span class="typing-dots"><i></i><i></i><i></i></span>');
+    $typing.find('.bubble').css({'white-space': 'normal'}).html('<span class="typing-dots"><i></i><i></i><i></i></span>');
     $body.append($typing); scrollToBottom();
-
     // 1. Secret Key / Owner Check (Secure Backend Ping)
     try {
         const authRes = await $.post(cfg.ajax_url, { 

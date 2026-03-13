@@ -4,12 +4,12 @@ All notable changes to the **ProBot Assistant** plugin will be documented in thi
 This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [1.6.0-beta.3] — 2026-03-12
-### 🔮 The Alchemist HUD & Lead Generation Upgrade
-* **Alchemist Business HUD**: Completely redesigned the Answering Dashboard into a high-value business tracker.
+### 🔮 HUD & Lead Generation Upgrade
+* **Business HUD**: Completely redesigned the Answering Dashboard into a high-value business tracker.
 * **Lead Generation**: Integrated new "New Leads" tracking via SMS Opt-ins.
 * **Live Booking Sync**: Real-time integration with the Alchemy Booking plugin; bookings and revenue now update the HUD instantly.
 * **Stay Connected Popup**: Added a Cedar Point-style dark-mode compliance modal for phone lead capture.
-* **Alchemist Status Toggle**: New availability switcher (Online/Busy) that informs the Llama 3.3 70B brain in real-time.
+* **Status Toggle**: New availability switcher (Online/Busy) that informs the Llama 3.3 70B brain in real-time.
 * **Brain Upgrade**: Migrated AI core to **Llama 3.3 70B Versatile** for superior reasoning and style matching.
 * **Reactive Status Indicators**: New pulsing UI elements (Green/Red) that sync across the HUD and Command Terminal.
 * **UI Customization**: Added "Window Corner Radius" setting for the desktop chat panel.
