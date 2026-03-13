@@ -57,6 +57,60 @@
     document.querySelectorAll('.pbot-auto-text, .pbot-auto-num, .pbot-color-text').forEach(bindAutosize);
   }
 
+  /* ---------------- Live Preview Sync ---------------- */
+  function initLivePreview() {
+    const stage = document.getElementById('pbot-preview-stage');
+    if (!stage) return;
+
+    const bubble  = document.getElementById('pbot-mini-bubble');
+    const panel   = document.getElementById('pbot-mini-panel');
+    const teaser  = document.getElementById('pbot-mini-teaser');
+
+    const inputs = {
+      brandColor: document.getElementById('pbot_brand_color'),
+      haloColor:  document.getElementById('pbot_halo_color'),
+      radius:     document.getElementById('pbot_panel_radius'),
+      teaserMsg:  document.getElementById('pbot_teaser_message'),
+      teaserBg:   document.getElementById('pbot_toast_bg_color'),
+      teaserFg:   document.getElementById('pbot_toast_text_color'),
+      pulseOn:    document.getElementById('pbot_pulse_enabled'),
+      teaserOn:   document.getElementById('pbot_teaser_enabled')
+    };
+
+    function update() {
+      if (inputs.brandColor) document.documentElement.style.setProperty('--pbot-preview-brand', inputs.brandColor.value);
+      if (inputs.haloColor)  document.documentElement.style.setProperty('--pbot-preview-halo',  inputs.haloColor.value);
+      if (inputs.radius)     document.documentElement.style.setProperty('--pbot-preview-radius', inputs.radius.value + 'px');
+      if (inputs.teaserBg)   document.documentElement.style.setProperty('--pbot-preview-teaser-bg', inputs.teaserBg.value);
+      if (inputs.teaserFg)   document.documentElement.style.setProperty('--pbot-preview-teaser-fg', inputs.teaserFg.value);
+      
+      if (teaser && inputs.teaserMsg) teaser.innerText = inputs.teaserMsg.value || "Hello there!";
+      if (teaser && inputs.teaserOn)  teaser.style.display = inputs.teaserOn.checked ? 'block' : 'none';
+      
+      if (bubble && inputs.pulseOn) {
+        bubble.classList.toggle('is-pulsing', inputs.pulseOn.checked);
+      }
+    }
+
+    // Bind all inputs
+    Object.values(inputs).forEach(el => {
+      if (!el) return;
+      const ev = el.type === 'checkbox' || el.type === 'radio' ? 'change' : 'input';
+      el.addEventListener(ev, update);
+    });
+
+    // Toggle panel on bubble click
+    if (bubble && panel) {
+      bubble.addEventListener('click', () => {
+        const isVis = panel.style.opacity !== '0';
+        panel.style.opacity = isVis ? '0' : '1';
+        panel.style.transform = isVis ? 'translateY(10px) scale(0.95)' : 'translateY(0) scale(1)';
+      });
+    }
+
+    update(); // Initial sync
+  }
+
   /* ---------------- Test Sound ---------------- */
   function initTestSound() {
     const btn = document.getElementById('pbot_test_sound');
@@ -185,6 +239,7 @@
     initAutoNum();
     initAutosize();
     initTestSound();
+    initLivePreview();
     autosizeAll();
   }
 

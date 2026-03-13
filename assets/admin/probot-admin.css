@@ -2,9 +2,107 @@
 
 /* Layout shells */
 .pbot-wrap { max-width: 100%; margin-right: 0; padding-right: 0; }
+.pbot-settings-layout {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 24px;
+  align-items: start;
+}
+@media (max-width: 1100px) {
+  .pbot-settings-layout { grid-template-columns: 1fr; }
+  .pbot-settings-sidebar { position: static !important; }
+}
+
 .pbot-card{
   background:#fff; border:1px solid #dcdcde; border-radius:8px;
   padding:16px; margin:18px 0;
+}
+
+/* Sidebar / Preview Stage */
+.pbot-settings-sidebar {
+  position: sticky;
+  top: 32px;
+}
+
+.pbot-preview-stage {
+  background: #0d1117;
+  border-radius: 12px;
+  height: 320px;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #30363d;
+  margin-top: 15px;
+}
+
+.pbot-preview-footer {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 60px;
+  background: #161b22;
+  border-top: 1px solid #30363d;
+}
+
+/* Mini Bubble */
+.pbot-mini-bubble {
+  position: absolute;
+  bottom: 15px; right: 15px;
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: var(--pbot-preview-brand, #444);
+  box-shadow: 0 0 0 0 var(--pbot-preview-halo, rgba(255,255,255,0.7));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  z-index: 10;
+  cursor: pointer;
+}
+
+.pbot-mini-bubble.is-pulsing {
+  animation: pbot-preview-pulse 2s infinite;
+}
+
+@keyframes pbot-preview-pulse {
+  0% { box-shadow: 0 0 0 0 var(--pbot-preview-halo); transform: scale(1); }
+  70% { box-shadow: 0 0 0 15px rgba(255,255,255,0); transform: scale(1.05); }
+  100% { box-shadow: 0 0 0 0 rgba(255,255,255,0); transform: scale(1); }
+}
+
+/* Mini Panel */
+.pbot-mini-panel {
+  position: absolute;
+  bottom: 65px; right: 15px;
+  width: 140px; height: 180px;
+  background: #fff;
+  border-radius: var(--pbot-preview-radius, 12px);
+  border: 1px solid #d0d7de;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+  display: flex; flex-direction: column;
+  z-index: 5;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.pbot-mini-topbar {
+  height: 24px;
+  background: #f6f8fa;
+  border-bottom: 1px solid #d0d7de;
+  border-top-left-radius: inherit;
+  border-top-right-radius: inherit;
+}
+
+/* Mini Teaser */
+.pbot-mini-teaser {
+  position: absolute;
+  bottom: 25px; right: 65px;
+  background: var(--pbot-preview-teaser-bg, #121212);
+  color: var(--pbot-preview-teaser-fg, #fff);
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-size: 10px;
+  white-space: nowrap;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  z-index: 10;
 }
 
 /* Rows */
