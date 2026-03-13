@@ -1,6 +1,6 @@
 <?php
 /**
- * ProBot Assistant — Admin: Secretary Dashboard Controller
+ * ProBot Assistant — Admin: Master Brain Controller
  * The central HUD for Mirroring, Brain Status, and VPS Configuration.
  */
 if (!defined('ABSPATH')) exit;

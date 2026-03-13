@@ -451,11 +451,11 @@ add_action('admin_init', function () {
  * Menus + includes
  * ----------------------------------------------------------------------- */
 add_action('admin_menu', function () {
-  // Main Menu - points to Dashboard (Secretary HUD)
+  // Main Menu - points to Master Brain (Secretary HUD)
   add_menu_page('ProBot Assistant','ProBot Assistant','manage_options','probot-assistant','pbot_render_secretary_page','dashicons-format-chat',58);
   
   // Submenus
-  add_submenu_page('probot-assistant','Dashboard','Dashboard','manage_options','probot-assistant','pbot_render_secretary_page');
+  add_submenu_page('probot-assistant','Master Brain','Master Brain','manage_options','probot-assistant','pbot_render_secretary_page');
   add_submenu_page('probot-assistant','UI Settings','UI Settings','manage_options','probot-assistant-settings','probot_render_settings_page');
   add_submenu_page('probot-assistant','Knowledge Base','Knowledge Base','manage_options','probot-assistant-knowledge','probot_render_responses_page');
   add_submenu_page('probot-assistant','AI Answering','AI Answering','manage_options','probot-assistant-answering','probot_render_answering_page');

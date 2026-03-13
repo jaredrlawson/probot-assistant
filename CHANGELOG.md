@@ -9,6 +9,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 * **Article Writer Refactor**: Modernized the Article Writer with a cleaner grid layout, better input readability, and a dedicated sidebar for billing route control and actions.
 * **UI Consistency**: Standardized the use of the `.pbot-settings-layout` grid system across all primary admin views to prevent "stretched" layouts on large screens.
 * **Status Card Integration**: Added consistent AI Brain status indicators to the Knowledge Base sidebar.
+* **Master Brain Rebranding**: Renamed "Dashboard" to "Master Brain" and "Secretary Master Brain" to "AI Master Brain" for a more focused AI experience.
 * **Refined Bubble Icons**: Streamlined bubble icon options in Settings and improved the live design preview bubble.
 
 ## [1.6.0-beta.3] — 2026-03-12

@@ -16,7 +16,7 @@ $is_online  = get_option('pbot_vps_online', 0);
 
 <div class="wrap probot-admin-wrap pbot-wrap">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <h1 class="pbot-glitch-title">Secretary Master Brain</h1>
+        <h1 class="pbot-glitch-title">AI Master Brain</h1>
         <div id="pbot-hud-status" style="display: flex; align-items: center; gap: 12px; padding: 10px 20px; background: #fff; border: 1px solid #d0d7de; border-radius: 30px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-right: 0;">
             <div id="pbot-terminal-pulse" class="pbot-status-pulse <?php echo $is_online ? 'is-active' : 'is-offline'; ?>"></div>
             <span id="pbot-connection-status" style="font-weight: 600; color: <?php echo $is_online ? '#238636' : '#cf222e'; ?>;">
