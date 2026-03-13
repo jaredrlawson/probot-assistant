@@ -2,7 +2,7 @@
 /**
  * Plugin Name: ProBot Assistant
  * Description: Front-end chat assistant with teaser, JSON intents (packaged or manual), fuzzy matching, and admin Knowledge Base manager.
- * Version: 1.6.0-beta.3
+ * Version: 1.6.0-beta.4
  * Author: Jared Я Lawson
  * License: GPLv2 or later
  */

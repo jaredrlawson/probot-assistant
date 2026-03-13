@@ -4,6 +4,13 @@ Front-end chat assistant with teaser, JSON intents, fuzzy matching, and deep sit
 
 ## Changelog
 
+### 1.6.0-beta.4 — 2026-03-13
+* **🎨 UI & Layout Refactor**
+* **Knowledge Base Sidebar:** Redesigned into a two-column layout with a sticky sidebar for settings and quick actions.
+* **Article Writer Refactor:** Modernized the writer UI with a grid layout and improved input readability.
+* **UI Consistency:** Standardized the use of the `.pbot-settings-layout` grid system across all primary admin views.
+* **Refined Bubble Icons:** Streamlined icon options and improved the design preview.
+
 ### 1.6.0-beta.3 — 2026-03-12
 * **🔮 HUD & Lead Generation Upgrade**
 * **Business HUD:** Redesigned Answering Dashboard into a high-value business tracker (Leads, Bookings, Chats, Revenue).

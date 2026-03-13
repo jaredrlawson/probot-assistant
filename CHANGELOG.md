@@ -3,6 +3,14 @@
 All notable changes to the **ProBot Assistant** plugin will be documented in this file. 
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.6.0-beta.4] — 2026-03-13
+### 🎨 UI & Layout Refactor
+* **Knowledge Base Sidebar**: Redesigned the Knowledge Base into a two-column layout with a sticky sidebar for settings, quick actions, and export/import tools.
+* **Article Writer Refactor**: Modernized the Article Writer with a cleaner grid layout, better input readability, and a dedicated sidebar for billing route control and actions.
+* **UI Consistency**: Standardized the use of the `.pbot-settings-layout` grid system across all primary admin views to prevent "stretched" layouts on large screens.
+* **Status Card Integration**: Added consistent AI Brain status indicators to the Knowledge Base sidebar.
+* **Refined Bubble Icons**: Streamlined bubble icon options in Settings and improved the live design preview bubble.
+
 ## [1.6.0-beta.3] — 2026-03-12
 ### 🔮 HUD & Lead Generation Upgrade
 * **Business HUD**: Completely redesigned the Answering Dashboard into a high-value business tracker (Leads, Bookings, Chats, Revenue).
