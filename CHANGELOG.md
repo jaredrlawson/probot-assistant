@@ -3,14 +3,32 @@
 All notable changes to the **ProBot Assistant** plugin will be documented in this file. 
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.6.0-beta.3] — 2026-03-12
+### 🔮 HUD & Lead Generation Upgrade
+* **Business HUD**: Completely redesigned the Answering Dashboard into a high-value business tracker (Leads, Bookings, Chats, Revenue).
+* **Lead Generation**: Integrated new "New Leads" tracking via SMS Opt-ins and "Stay Connected" popup.
+* **Live Booking Sync**: Real-time integration with the Alchemy Booking plugin; bookings and revenue now update the HUD instantly.
+* **Stay Connected Popup**: Added a Cedar Point-style dark-mode compliance modal for phone lead capture.
+* **Status Toggle**: New availability switcher (Online/Busy) that informs the Llama 3.3 70B brain in real-time.
+* **Brain Upgrade**: Migrated AI core to **Llama 3.3 70B Versatile** for superior reasoning and style matching.
+* **Reactive Status Indicators**: New pulsing UI elements (Green/Red) that sync across the HUD and Command Terminal.
+* **UI Customization**: Added "Window Corner Radius" setting for the desktop chat panel.
+* **Full-Width Layout**: Expanded admin dashboards to 100% width for edge-to-edge data visibility.
+* **Fix**: Enforced compact HTML output and normalized CSS spacing for AI responses to eliminate excessive whitespace.
+
+## [1.6.0-beta.2] — 2026-03-11
+### 🛡️ Security & UX Hardening
+* **SSRF Prevention**: Secured the Secretary Brain AJAX proxy to use only the configured VPS IP and validated routes.
+* **XSS Hardening**: Added robust sanitization for Knowledge Base JSON intents and Secretary chat responses.
+* **CSRF Protection**: Implemented nonce verification for all administrative AJAX calls and settings updates.
+* **Reactive UI**: Redesigned Admin Settings layout for a cleaner vertical stack.
+
 ## [1.6.0-beta.1] — 2026-03-05
 ### 🚀 The AI Business Assistant Milestone
 * **Autopilot Engine**: Introduced background worker using WP-Cron for automated article generation.
 * **Topic Queue**: Added a dedicated dashboard to queue multiple topics for future AI generation.
 * **AI Auto-Category**: New feature to automatically detect, create, and assign WordPress categories based on AI output.
 * **SEO Maximizer**: Integrated advanced system prompting to prioritize keyword density, H2/H3 structure, and meta data.
-* **Security Hardening**: Implemented CSRF protection (Nonces) and XSS mitigation (`wp_kses_post`) across all admin handlers.
-* **Reactive UI**: Save buttons now dynamically enable/disable based on feature toggle states.
 * **Dual Credit System**: REST API support for `channel=writer|phone` usage incrementing.
 
 ## [1.5.8] — 2025-09-01
