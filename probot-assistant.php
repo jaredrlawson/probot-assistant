@@ -184,6 +184,7 @@ add_action('wp_enqueue_scripts', function () {
     'plugin_url'         => pbot_url(''),
     'nonce'              => wp_create_nonce('probot_nonce'),
     'brand_title'        => get_option('pbot_brand_title', 'ProBot Assistant'),
+    'bubble_icon'        => get_option('pbot_bubble_icon', 'chat'),
     'bubble_position'    => get_option('pbot_bubble_position', 'right'),
     'pulse_enabled'      => (bool) get_option('pbot_pulse_enabled', 1),
     'teaser_enabled'     => (bool) get_option('pbot_teaser_enabled', 1),

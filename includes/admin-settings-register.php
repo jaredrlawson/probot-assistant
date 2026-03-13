@@ -7,11 +7,12 @@ if (!defined('ABSPATH')) exit;
 add_action('admin_init', function () {
   // Core toggles and basics
   register_setting('pbot_settings', 'pbot_brand_title');
-  register_setting('pbot_settings', 'pbot_bubble_position'); // left|right
+  register_setting('pbot_settings', 'pbot_bubble_icon',     ['type'=>'string','sanitize_callback'=>'sanitize_text_field', 'default'=>'chat']);
+  register_setting('pbot_settings', 'pbot_bubble_position', ['type'=>'string','sanitize_callback'=>'sanitize_text_field', 'default'=>'right']);
   register_setting('pbot_settings', 'pbot_pulse_enabled');
   register_setting('pbot_settings', 'pbot_teaser_enabled');
   register_setting('pbot_settings', 'pbot_sound_enabled');
-
+  register_setting('pbot_settings', 'pbot_reply_sound', ['type'=>'string','sanitize_callback'=>'sanitize_text_field', 'default'=>'mystical-chime']);
   // Colors
   register_setting('pbot_settings', 'pbot_brand_color', ['type'=>'string','sanitize_callback'=>'sanitize_text_field']);
   register_setting('pbot_settings', 'pbot_halo_color',  ['type'=>'string','sanitize_callback'=>'sanitize_text_field', 'default'=>'#ffffff']);

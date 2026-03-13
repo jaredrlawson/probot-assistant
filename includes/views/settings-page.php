@@ -48,6 +48,17 @@
                    value="<?php echo esc_attr($brand); ?>" class="regular-text" />
           </div>
 
+          <div class="pbot-row pbot-row-stacked" style="margin-top: 15px;">
+            <label for="pbot_bubble_icon"><strong>Bubble icon</strong></label>
+            <select id="pbot_bubble_icon" name="pbot_bubble_icon">
+              <option value="chat" <?php selected($bubbleIcon, 'chat'); ?>>Chat Bubble</option>
+              <option value="robot" <?php selected($bubbleIcon, 'robot'); ?>>Robot</option>
+              <option value="sparkles" <?php selected($bubbleIcon, 'sparkles'); ?>>Sparkles</option>
+              <option value="crystal-ball" <?php selected($bubbleIcon, 'crystal-ball'); ?>>Crystal Ball</option>
+              <option value="magic-wand" <?php selected($bubbleIcon, 'magic-wand'); ?>>Magic Wand</option>
+            </select>
+          </div>
+
           <fieldset class="pbot-fieldset">
             <legend>Bubble position</legend>
             <div class="pbot-inline">

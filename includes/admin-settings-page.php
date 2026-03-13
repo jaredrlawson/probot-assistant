@@ -19,10 +19,12 @@ function probot_render_settings_page() {
   $ctx = array(
     // Core
     'brand'   => get_option('pbot_brand_title', 'ProBot Assistant'),
+    'bubbleIcon' => get_option('pbot_bubble_icon', 'chat'),
     'pos'     => get_option('pbot_bubble_position', 'right'),
     'pulse'   => (bool) get_option('pbot_pulse_enabled', 1),
     'teaserT' => (bool) get_option('pbot_teaser_enabled', 1),
     'sound'   => (bool) get_option('pbot_sound_enabled', 1),
+    'replySound' => get_option('pbot_reply_sound', 'mystical-chime'),
     'thresh'  => (float) get_option('pbot_match_threshold', 0.52),
     'gDelay'  => (int)   get_option('pbot_greeting_delay_ms', 2200),
 
