@@ -92,8 +92,9 @@ register_activation_hook(PROBOT_FILE, function () {
   add_option('pbot_brand_title',       'ProBot Assistant');
   add_option('pbot_bubble_position',   'right');
   add_option('pbot_pulse_enabled',     1);
-  add_option('pbot_teaser_enabled',    1);
-  add_option('pbot_sound_enabled',     1);
+  add_option('pbot_teaser_enabled',  1);
+  add_option('pbot_sound_enabled',   1);
+  add_option('pbot_reply_sound',     'mystical-chime');
   add_option('pbot_intents_source',    'packaged');
   add_option('pbot_manual_intents',    '');
   add_option('pbot_match_threshold',   0.52);
@@ -158,7 +159,7 @@ add_action('wp_enqueue_scripts', function () {
   $js_rel  = 'assets/frontend/probot-assistant.js';
   
   // Hard version bust for Beta 3 Cross-Browser Sync
-  $ver = probot_asst_asset_ver($js_rel) . '.1604'; 
+  $ver = probot_asst_asset_ver($js_rel) . '.1606'; 
 
   wp_enqueue_style('probot-assistant-css', pbot_url($css_rel), array(), $ver);
   wp_enqueue_script('probot-assistant-js', pbot_url($js_rel), array('jquery'), $ver, true);
@@ -180,12 +181,14 @@ add_action('wp_enqueue_scripts', function () {
 
   wp_localize_script('probot-assistant-js', 'pbot_cfg', array(
     'ajax_url'           => admin_url('admin-ajax.php'),
+    'plugin_url'         => pbot_url(''),
     'nonce'              => wp_create_nonce('probot_nonce'),
     'brand_title'        => get_option('pbot_brand_title', 'ProBot Assistant'),
     'bubble_position'    => get_option('pbot_bubble_position', 'right'),
     'pulse_enabled'      => (bool) get_option('pbot_pulse_enabled', 1),
     'teaser_enabled'     => (bool) get_option('pbot_teaser_enabled', 1),
     'sound_enabled'      => (bool) get_option('pbot_sound_enabled', 1),
+    'reply_sound'        =>         get_option('pbot_reply_sound', 'mystical-chime'),
     'intents_url'        => esc_url_raw($intents_url),
     'match_threshold'    => (float) get_option('pbot_match_threshold', 0.52),
     'greeting_delay_ms'  => (int) get_option('pbot_greeting_delay_ms', 2200),
@@ -239,7 +242,7 @@ add_action('admin_enqueue_scripts', function($hook){
 
   if ( ! $is_probot_screen && ! $is_plugins_list ) return;
 
-  $ver = probot_asst_asset_ver('assets/admin/probot-admin.js') . '.1605';
+  $ver = probot_asst_asset_ver('assets/admin/probot-admin.js') . '.1606';
 
   wp_enqueue_style('pbot-admin', pbot_url('assets/admin/probot-admin.css'), array(), $ver);
   if ( $is_probot_screen ) {
@@ -248,6 +251,7 @@ add_action('admin_enqueue_scripts', function($hook){
     // Admin Bridge Data
     wp_localize_script('pbot-admin', 'pbotData', array(
         'ajax_url'   => admin_url('admin-ajax.php'),
+        'plugin_url' => pbot_url(''),
         'nonce'      => wp_create_nonce('probot_nonce'),
         'secret_key' => get_option('pbot_secret_key', ''),
         'is_online'  => get_option('pbot_vps_online', 0),

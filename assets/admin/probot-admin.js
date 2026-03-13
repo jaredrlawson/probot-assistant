@@ -57,6 +57,48 @@
     document.querySelectorAll('.pbot-auto-text, .pbot-auto-num, .pbot-color-text').forEach(bindAutosize);
   }
 
+  /* ---------------- Test Sound ---------------- */
+  function initTestSound() {
+    const btn = document.getElementById('pbot_test_sound');
+    const select = document.getElementById('pbot_reply_sound');
+    if (!btn || !select) return;
+
+    let player = null;
+    btn.addEventListener('click', () => {
+      const sound = select.value;
+      if (sound === 'none') return;
+
+      if (player) {
+        player.pause();
+        player.currentTime = 0;
+      }
+      
+      const pData = window.pbotData || {};
+      let baseUrl = pData.plugin_url || '';
+      if (baseUrl && !baseUrl.endsWith('/')) baseUrl += '/';
+      
+      let audioUrl = baseUrl + 'assets/frontend/' + sound + '.mp3';
+
+      // Fallbacks for missing local assets during recovery
+      const fallbacks = {
+          'mystical-chime':    'https://assets.mixkit.co/active_storage/sfx/2361/2361-preview.mp3',
+          'crystal-ping':      'https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3',
+          'soft-notification': 'https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3',
+          'digital-pulse':     'https://assets.mixkit.co/active_storage/sfx/2359/2359-preview.mp3'
+      };
+
+      if (fallbacks[sound]) {
+          audioUrl = fallbacks[sound];
+      }
+
+      player = new Audio(audioUrl);
+      player.play().catch(e => {
+          console.error('Sound play failed', e);
+          alert('Asset missing: ' + audioUrl);
+      });
+    });
+  }
+
   /* ---------------- Color picker <-> text sync ---------------- */
   function syncColor(pickerId, inputId) {
     const p = document.getElementById(pickerId);
@@ -142,6 +184,7 @@
     initSliders();
     initAutoNum();
     initAutosize();
+    initTestSound();
     autosizeAll();
   }
 

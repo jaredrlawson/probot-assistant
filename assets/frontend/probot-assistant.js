@@ -277,8 +277,9 @@ jQuery(function ($) {
   // Controlled ding() – use everywhere instead of direct audio.play()
   function ding(){
     if (!cfg.sound_enabled) return;
-    if (!audioEl) return;
-    if (!$overlay.is(':visible')) return; // ADDED: Only ding if the chat is actually open
+    if (cfg.reply_sound === 'none') return;
+    
+    if (!$overlay.is(':visible')) return; 
 
     // allow dings while minimized, but never when CLOSED
     if (window.__pbotIsClosed) return;
@@ -286,13 +287,33 @@ jQuery(function ($) {
     // Clamp greeting right after reopen to one ding total
     const insideReopen = (Date.now() - reopenAt) <= REOPEN_WINDOW;
     if (insideReopen) {
-      if (reopenOnePlayed) return; // already spent the greet ding
+      if (reopenOnePlayed) return; 
       reopenOnePlayed = true;
     }
 
     if (recently(500)) return; // hard dedupe
-    audioEl.currentTime = 0;
-    audioEl.play().catch(()=>{});
+    
+    // Dynamic sound path
+    const soundName = cfg.reply_sound || 'mystical-chime';
+    let baseUrl = cfg.plugin_url || '';
+    if (baseUrl && !baseUrl.endsWith('/')) baseUrl += '/';
+    
+    let audioUrl = baseUrl + 'assets/frontend/' + soundName + '.mp3';
+
+    // Fallbacks for missing local assets
+    const fallbacks = {
+        'mystical-chime':    'https://assets.mixkit.co/active_storage/sfx/2361/2361-preview.mp3',
+        'crystal-ping':      'https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3',
+        'soft-notification': 'https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3',
+        'digital-pulse':     'https://assets.mixkit.co/active_storage/sfx/2359/2359-preview.mp3'
+    };
+
+    if (fallbacks[soundName]) {
+        audioUrl = fallbacks[soundName];
+    }
+
+    const player = new Audio(audioUrl);
+    player.play().catch(()=>{});
   }
 
   // Unlock sound on any first interaction (kept)
