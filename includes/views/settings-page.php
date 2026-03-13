@@ -51,11 +51,9 @@
           <div class="pbot-row pbot-row-stacked" style="margin-top: 15px;">
             <label for="pbot_bubble_icon"><strong>Bubble icon</strong></label>
             <select id="pbot_bubble_icon" name="pbot_bubble_icon">
-              <option value="chat" <?php selected($bubbleIcon, 'chat'); ?>>Chat Bubble</option>
+              <option value="original" <?php selected($bubbleIcon, 'original'); ?>>Chat Bubble (Original)</option>
               <option value="robot" <?php selected($bubbleIcon, 'robot'); ?>>Robot</option>
-              <option value="sparkles" <?php selected($bubbleIcon, 'sparkles'); ?>>Sparkles</option>
-              <option value="crystal-ball" <?php selected($bubbleIcon, 'crystal-ball'); ?>>Crystal Ball</option>
-              <option value="magic-wand" <?php selected($bubbleIcon, 'magic-wand'); ?>>Magic Wand</option>
+              <option value="none" <?php selected($bubbleIcon, 'none'); ?>>None</option>
             </select>
           </div>
 
@@ -290,7 +288,7 @@
                 <div style="position: absolute; right: 5px; top: 4px; width: 14px; height: 14px; border-radius: 3px; background: #eee; display: flex; align-items: center; justify-content: center; font-size: 8px; color: #666; border: 1px solid #ddd;">×</div>
               </div>
             </div>
-            <div class="pbot-mini-bubble" id="pbot-mini-bubble">🤖</div>
+            <div class="pbot-mini-bubble" id="pbot-mini-bubble"></div>
             <div class="pbot-preview-footer"></div>
           </div>
           <p class="description" style="margin-top:10px;">Visual representation of your current settings. Click bubble to toggle window.</p>

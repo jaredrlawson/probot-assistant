@@ -1,11 +1,9 @@
 <?php
 /**
  * ProBot Assistant — Admin: Article Writer Registration
- * Beta 3 Upgrade: REST API Draft Receiver + Article Generation Proxy
  */
 if (!defined('ABSPATH')) exit;
 
-// ---------- 1. Options Registration ----------
 add_action('admin_init', function () {
     // Membership / Tier Settings
     register_setting('pbot_writer_settings', 'pbot_membership_tier', [
@@ -24,18 +22,22 @@ add_action('admin_init', function () {
     register_setting('pbot_writer_settings', 'pbot_writer_ai_category',   ['type'=>'integer','default'=>1]);
     register_setting('pbot_writer_settings', 'pbot_writer_schedule',      ['type'=>'string', 'default'=>'monthly']);
     register_setting('pbot_writer_settings', 'pbot_writer_monthly_limit', ['type'=>'integer','default'=>1]);
+
+    // Route & Specs Persistence
+    register_setting('pbot_writer_settings', 'pbot_billing_route',        ['type'=>'string', 'default'=>'api']);
+    register_setting('pbot_writer_settings', 'pbot_writer_include_outline', ['type'=>'integer','default'=>1]);
+    register_setting('pbot_writer_settings', 'pbot_writer_include_meta',    ['type'=>'integer','default'=>1]);
+    register_setting('pbot_writer_settings', 'pbot_writer_publish_immediately', ['type'=>'integer','default'=>0]);
 });
 
 /**
- * 2. REST API: DRAFT RECEIVER
- * Endpoint for the VPS (wordpress-service.ts) to push generated content.
- * URL: yoursite.com/wp-json/pbot/v1/article/receive
+ * REST API: DRAFT RECEIVER
  */
 add_action('rest_api_init', function () {
     register_rest_route('pbot/v1', '/article/receive', [
         'methods'             => 'POST',
         'callback'            => 'pbot_handle_incoming_vps_draft',
-        'permission_callback' => '__return_true', // Verified via Secret Key header
+        'permission_callback' => '__return_true',
     ]);
 });
 
@@ -56,7 +58,6 @@ function pbot_handle_incoming_vps_draft(\WP_REST_Request $req) {
         return new \WP_Error('missing_content', 'No content provided', ['status' => 400]);
     }
 
-    // Identify the Owner User ID
     $owner_user = get_user_by('login', get_option('pbot_secretary_wp_user'));
     $author_id  = $owner_user ? $owner_user->ID : get_current_user_id();
 
@@ -73,16 +74,11 @@ function pbot_handle_incoming_vps_draft(\WP_REST_Request $req) {
         return new \WP_Error('post_error', $post_id->get_error_message(), ['status' => 500]);
     }
 
-    return new \WP_REST_Response([
-        'success' => true,
-        'post_id' => $post_id,
-        'message' => 'Draft saved for ' . get_option('pbot_owner_name')
-    ], 200);
+    return new \WP_REST_Response(['success' => true, 'post_id' => $post_id], 200);
 }
 
 /**
- * 3. TRIGGER GENERATION AJAX
- * Proxies the "Generate Now" command to the VPS Brain.
+ * TRIGGER GENERATION AJAX
  */
 add_action('wp_ajax_pbot_trigger_article_generation', 'pbot_handle_article_trigger');
 function pbot_handle_article_trigger() {
@@ -92,7 +88,6 @@ function pbot_handle_article_trigger() {
     $vps_url = untrailingslashit(get_option('pbot_vps_url'));
     if (empty($vps_url)) wp_send_json_error(['message' => 'Brain Endpoint not configured']);
 
-    // Capture UI inputs
     $payload = [
         'title'    => sanitize_text_field($_POST['title']    ?? ''),
         'context'  => sanitize_textarea_field($_POST['context']  ?? ''),
@@ -103,11 +98,10 @@ function pbot_handle_article_trigger() {
         'category' => (int)($_POST['category'] ?? 0)
     ];
 
-    // Proxy to VPS /secretary/generate-article
     $response = wp_remote_post($vps_url . '/secretary/generate-article', [
         'method'    => 'POST',
-        'timeout'   => 60, // Article generation is heavy
-        'sslverify' => false, // Protocol Bridge: HTTPS -> HTTP
+        'timeout'   => 60,
+        'sslverify' => false,
         'headers'   => [
             'Content-Type'      => 'application/json',
             'X-Pbot-Secret-Key' => get_option('pbot_secret_key')
@@ -115,17 +109,11 @@ function pbot_handle_article_trigger() {
         'body' => wp_json_encode($payload)
     ]);
 
-    if (is_wp_error($response)) {
-        wp_send_json_error(['message' => $response->get_error_message()]);
-    }
+    if (is_wp_error($response)) wp_send_json_error(['message' => $response->get_error_message()]);
 
     $status = wp_remote_retrieve_response_code($response);
     $body = json_decode(wp_remote_retrieve_body($response), true);
 
-    if ($status >= 200 && $status < 300) {
-        wp_send_json_success($body);
-    } else {
-        $error = !empty($body['error']) ? $body['error'] : 'VPS Error ' . $status;
-        wp_send_json_error(['message' => $error]);
-    }
+    if ($status >= 200 && $status < 300) wp_send_json_success($body);
+    else wp_send_json_error(['message' => $body['error'] ?? 'VPS Error ' . $status]);
 }

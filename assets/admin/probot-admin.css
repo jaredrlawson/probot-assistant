@@ -54,7 +54,9 @@
   font-size: 18px;
   z-index: 10;
   cursor: pointer;
+  color: #fff !important;
 }
+.pbot-mini-bubble svg { color: #fff !important; }
 
 .pbot-mini-bubble.is-pulsing {
   animation: pbot-preview-pulse 2s infinite;
@@ -232,6 +234,11 @@ select.pbot-select{ min-width:320px; max-width:100%; }
 .pbot-kb-cols{ display:flex; gap:18px; flex-wrap:wrap; }
 .pbot-kb-col{ flex:1 1 420px; min-width:260px; }
 
+/* Knowledge base sidebar specific overrides */
+.pbot-knowledge .pbot-settings-sidebar .pbot-card { margin-top: 0; }
+.pbot-knowledge .pbot-settings-sidebar .pbot-row { gap: 10px; }
+.pbot-knowledge .pbot-settings-sidebar .pbot-actions-bar .button { flex: 1 1 100%; }
+
 /* Halo & Pulse intensity slider values */
 #pbot_halo_intensity, #pbot_pulse_intensity { max-width:220px; }
 .pbot-halo-val, .pbot-pulse-val{
@@ -328,12 +335,23 @@ select.pbot-select{ min-width:320px; max-width:100%; }
   background:#d97b00; /* beta */
 }
 
-/* Writer page: keep inputs 100% width and prevent horizontal scroll */
+/* Writer page: constrain inputs for readability */
+.pbot-writer .pbot-card {
+  max-width: 960px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 .pbot-writer .pbot-row input[type="text"],
 .pbot-writer .pbot-row input[type="number"],
 .pbot-writer .pbot-row input[type="password"],
 .pbot-writer .pbot-row .regular-text,
-.pbot-writer .pbot-row select,
+.pbot-writer .pbot-row select {
+  max-width: 100%;
+  width: min(520px, 100%);
+  min-width: 0;
+}
+
 .pbot-writer .pbot-row textarea {
   width: 100%;
   max-width: 100%;
