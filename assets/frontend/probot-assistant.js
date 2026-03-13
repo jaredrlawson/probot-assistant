@@ -307,8 +307,26 @@ jQuery(function ($) {
   $button.on('click', unlockAudio);
   $(document).on('click touchstart keydown', function one(){ unlockAudio(); $(document).off('click touchstart keydown', one); });
 
-  /* ---------------- UTILITIES ---------------- */
-  function scrollToBottom(){ 
+  /* ---------------- UTILS ---------------- */
+  function safeHTML(str) {
+    if (!str) return "";
+    const doc = new DOMParser().parseFromString(str, 'text/html');
+    const tags = ['H2','H3','P','UL','LI','B','I','STRONG','EM','BR','CODE'];
+    const nodes = doc.body.querySelectorAll('*');
+    for (let i = 0; i < nodes.length; i++) {
+      if (!tags.includes(nodes[i].tagName)) {
+        nodes[i].parentNode.removeChild(nodes[i]);
+      } else {
+        // Strip attributes (onclick, etc)
+        while (nodes[i].attributes.length > 0) {
+          nodes[i].removeAttribute(nodes[i].attributes[0].name);
+        }
+      }
+    }
+    return doc.body.innerHTML;
+  }
+
+  function scrollToBottom() {
     $scroll.stop().animate({ scrollTop: $scroll[0].scrollHeight }, 300); 
   }
   function ensureScrollable(){
@@ -788,7 +806,7 @@ CONTENT: ${cleanContent}`;
               const waitMs = typingDelayFor(reply, { min: 500, max: 12000, base: 400, perChar: 25, perWord: 20 });
               
               setTimeout(() => {
-                  $typing.removeClass('typing').find('.bubble').html(reply); // Clean HTML
+                  $typing.removeClass('typing').find('.bubble').html(safeHTML(reply));
                   scrollToBottom(); ensureScrollable();
                   ding();
                   saveState();
@@ -804,7 +822,7 @@ CONTENT: ${cleanContent}`;
       const jsonReply = localMatch || `I'm not quite sure about that. Rephrase or ask ${cfg.owner_name}?`;
       const waitMs = typingDelayFor(jsonReply, { min: 400, max: 12000, base: 300, perChar: 25, perWord: 20 });
       setTimeout(()=>{
-        $typing.removeClass('typing').find('.bubble').html(jsonReply);
+        $typing.removeClass('typing').find('.bubble').html(safeHTML(jsonReply));
         scrollToBottom(); ensureScrollable();
         ding(); // one ding per finalized reply
         saveState();
