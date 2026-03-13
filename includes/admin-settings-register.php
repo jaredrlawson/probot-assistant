@@ -7,7 +7,7 @@ if (!defined('ABSPATH')) exit;
 add_action('admin_init', function () {
   // Core toggles and basics
   register_setting('pbot_settings', 'pbot_brand_title');
-  register_setting('pbot_settings', 'pbot_bubble_icon',     ['type'=>'string','sanitize_callback'=>'sanitize_text_field', 'default'=>'original']);
+  register_setting('pbot_settings', 'pbot_bubble_icon',     ['type'=>'string','sanitize_callback'=>'sanitize_text_field', 'default'=>'chat']);
   register_setting('pbot_settings', 'pbot_bubble_position', ['type'=>'string','sanitize_callback'=>'sanitize_text_field', 'default'=>'right']);
   register_setting('pbot_settings', 'pbot_pulse_enabled');
   register_setting('pbot_settings', 'pbot_teaser_enabled');

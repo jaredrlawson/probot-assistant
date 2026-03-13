@@ -122,7 +122,6 @@ function probot_handle_article_writer_generate() {
   $lic         = pbot_license_check();
 
   // Inputs
-  $route     = sanitize_text_field($_POST['pbot_billing_route'] ?? 'api');
   $title     = sanitize_text_field($_POST['pbot_post_title'] ?? '');
   $brief     = sanitize_textarea_field($_POST['pbot_brief'] ?? '');
   $keywords  = sanitize_text_field($_POST['pbot_keywords'] ?? '');
@@ -137,8 +136,8 @@ function probot_handle_article_writer_generate() {
     return probot_writer_redirect('Please provide a brief/context.', 'error');
   }
 
-  // Wordcount capping logic (Credits/Brain route)
-  if ($route !== 'api') {
+  // Cap only on credits route (API route is uncapped by us)
+  if ($api_key === '') {
     if (!empty($lic['unlimited'])) {
       $wordcount = max(300, min(6000, $wordcount));
     } else {
@@ -171,7 +170,7 @@ function probot_handle_article_writer_generate() {
 
   $article_md=''; $meta_title=''; $meta_desc='';
 
-  if ($route === 'api' && $api_key !== '') {
+  if ($api_key !== '') {
     // Direct OpenAI route
     $resp = wp_remote_post('https://api.openai.com/v1/chat/completions',[
       'headers'=>['Content-Type'=>'application/json','Authorization'=>'Bearer '.$api_key],
@@ -182,16 +181,14 @@ function probot_handle_article_writer_generate() {
     $data = json_decode(wp_remote_retrieve_body($resp), true);
     $article_md = trim($data['choices'][0]['message']['content'] ?? '');
   } else {
-    // Credits / Brain / proxy route
-    if (!$lic['valid'] && $route !== 'brain') return probot_writer_redirect('Product Key required', 'error');
-    if ($proxy_url === '')                   return probot_writer_redirect('Proxy URL not configured', 'error');
-    
-    if ($route === 'credits' && empty($lic['unlimited'])) {
+    // Credits / proxy route
+    if (!$lic['valid'])            return probot_writer_redirect('Product Key required', 'error');
+    if ($proxy_url === '')         return probot_writer_redirect('Proxy URL not configured', 'error');
+    if (empty($lic['unlimited'])) {
       $used = pbot_writer_usage_get();
       $remain = max(0, (int)$lic['limit'] - $used);
       if ($remain <= 0) return probot_writer_redirect('Credit limit reached', 'error');
     }
-
     $resp = wp_remote_post($proxy_url,[
       'headers'=>[
         'Content-Type'=>'application/json',
@@ -199,7 +196,6 @@ function probot_handle_article_writer_generate() {
       ],
       'timeout'=>90,
       'body'=>wp_json_encode([
-        'route'=>$route,
         'messages'=>$messages,
         'wordcount'=>$wordcount,
         'outline'=>$outline,
@@ -213,16 +209,15 @@ function probot_handle_article_writer_generate() {
     $meta_desc  = sanitize_text_field($data['meta']['description'] ?? '');
 
     // increment both local + server usage when using credits
-    if ($route === 'credits' && empty($lic['unlimited'])) {
-      pbot_writer_usage_inc();
-      $lic_base = pbot_license_server_url();
-      if ($lic_base) {
-        wp_remote_post($lic_base.'/wp-json/pbls/v1/usage/increment', [
-          'timeout' => 15,
-          'headers' => ['X-Product-Key' => $product_key],
-          'body'    => ['amount' => 1],
-        ]);
-      }
+    if (empty($lic['unlimited'])) pbot_writer_usage_inc();
+
+    $lic_base = pbot_license_server_url();
+    if ($lic_base) {
+      wp_remote_post($lic_base.'/wp-json/pbls/v1/usage/increment', [
+        'timeout' => 15,
+        'headers' => ['X-Product-Key' => $product_key],
+        'body'    => ['amount' => 1],
+      ]);
     }
   }
 
@@ -286,14 +281,7 @@ function probot_render_article_writer_page(){
   $schedule      =        get_option('pbot_writer_schedule','monthly');
   $monthly_limit = (int) get_option('pbot_writer_monthly_limit',1);
 
-  // Persistent Route & Specs
-  $billing_route = get_option('pbot_billing_route', 'api');
-  $inc_outline   = (int) get_option('pbot_writer_include_outline', 1);
-  $inc_meta      = (int) get_option('pbot_writer_include_meta', 1);
-  $pub_now       = (int) get_option('pbot_writer_publish_immediately', 0);
-
   $lic = pbot_license_check();
-  $brain_set = true; // Placeholder for future license check
   [$can_generate,$why] = pbot_writer_can_generate($lic);
 
   // Notices
@@ -314,11 +302,7 @@ function probot_render_article_writer_page(){
 
   $disabled_btn = $can_generate ? '' : 'disabled';
 
-  $ctx = compact(
-    'tier','api_key','max_words','ai_category','schedule','monthly_limit',
-    'disabled_btn','notices','lic','why','brain_set',
-    'billing_route','inc_outline','inc_meta','pub_now'
-  );
+  $ctx = compact('tier','api_key','max_words','ai_category','schedule','monthly_limit','disabled_btn','notices','lic','why');
   extract($ctx, EXTR_SKIP);
   require dirname(__FILE__).'/views/writer-page.php';
 }
