@@ -37,7 +37,7 @@
     <form method="post" action="options.php">
       <?php settings_fields('pbot_settings'); ?>
 
-      <div class="pbot-row">
+      <div class="pbot-row pbot-row-stacked">
         <label for="pbot_brand_title"><strong>Brand title</strong></label>
         <input type="text" id="pbot_brand_title" name="pbot_brand_title"
                value="<?php echo esc_attr($brand); ?>" class="regular-text" />
@@ -67,7 +67,7 @@
       <fieldset class="pbot-fieldset">
         <legend>Teaser toast</legend>
 
-        <div class="pbot-row">
+        <div class="pbot-row pbot-row-stacked">
           <label for="pbot_teaser_message"><strong>Message</strong></label>
           <input type="text" id="pbot_teaser_message" name="pbot_teaser_message"
                  maxlength="120" class="regular-text"
@@ -97,10 +97,17 @@
         <div class="pbot-row pbot-color-row">
           <label for="pbot_toast_bg_color"><strong>Toast background</strong></label>
           <input type="color" class="pbot-color" id="pbot_toast_bg_color_picker"
-                 value="<?php echo esc_attr(preg_match('/^#|^rgb|^hsl/i',$toastBg) ? $toastBg : '#121212'); ?>" />
+                 value="<?php echo esc_attr(preg_match('/^#[0-9a-f]{3,6}$/i',$toastBg) ? $toastBg : '#121212'); ?>" />
           <input type="text" id="pbot_toast_bg_color" name="pbot_toast_bg_color"
                  class="pbot-color-text"
                  value="<?php echo esc_attr($toastBg); ?>" />
+        </div>
+
+        <div class="pbot-row">
+          <label for="pbot_toast_bg_opacity"><strong>Toast opacity</strong></label>
+          <input type="range" id="pbot_toast_bg_opacity" name="pbot_toast_bg_opacity"
+                 min="0" max="1" step="0.01" value="<?php echo esc_attr($toastOpacity); ?>" />
+          <span class="pbot-toast-opacity-val"><?php echo number_format($toastOpacity,2); ?></span>
         </div>
 
         <div class="pbot-row pbot-color-row">
@@ -126,7 +133,8 @@
 
         <div class="pbot-row pbot-color-row">
           <label for="pbot_halo_color"><strong>Halo</strong></label>
-          <input type="color" class="pbot-color" id="pbot_halo_color_picker" value="#ffffff" />
+          <input type="color" class="pbot-color" id="pbot_halo_color_picker" 
+                 value="<?php echo esc_attr(preg_match('/^#[0-9a-f]{3,6}$/i',$haloColor) ? $haloColor : '#ffffff'); ?>" />
           <input type="text" id="pbot_halo_color" name="pbot_halo_color"
                  class="pbot-color-text"
                  value="<?php echo esc_attr($haloColor); ?>" />
@@ -152,6 +160,12 @@
           <input type="text" id="pbot_panel_color" name="pbot_panel_color"
                  class="pbot-color-text"
                  value="<?php echo esc_attr($panelColor); ?>" />
+        </div>
+
+        <div class="pbot-row">
+          <label for="pbot_panel_radius"><strong>Window corner radius (px)</strong></label>
+          <input type="number" id="pbot_panel_radius" name="pbot_panel_radius"
+                 min="0" max="25" step="1" value="<?php echo esc_attr($panelRadius); ?>" />
         </div>
       </fieldset>
 
@@ -194,43 +208,33 @@
                  class="pbot-color-text"
                  value="<?php echo esc_attr($sendBorderColor); ?>" />
         </div>
-      </fieldset>
 
-      <fieldset class="pbot-fieldset">
-        <legend>Matching</legend>
-        <div class="pbot-row">
-          <label for="pbot_match_threshold"><strong>Fuzzy match threshold</strong></label>
-          <input type="number" id="pbot_match_threshold" name="pbot_match_threshold"
-                 class="pbot-num-mid pbot-auto-num"
-                 min="0" max="1" step="0.01"
-                 value="<?php echo esc_attr($thresh); ?>" />
-          <div class="pbot-muted" style="margin-top:8px;">0 = very loose, 1 = very strict (default 0.52)</div>
+        <div class="pbot-row pbot-color-row">
+          <label for="pbot_send_bg_color"><strong>Background color</strong></label>
+          <input type="color" class="pbot-color" id="pbot_send_bg_color_picker" value="<?php echo esc_attr($sendBgColor); ?>" />
+          <input type="text" id="pbot_send_bg_color" name="pbot_send_bg_color"
+                 class="pbot-color-text"
+                 value="<?php echo esc_attr($sendBgColor); ?>" />
         </div>
-      </fieldset>
 
-      <fieldset class="pbot-fieldset">
-        <legend>Greeting</legend>
-        <div class="pbot-row">
-          <label for="pbot_greeting_delay_ms"><strong>Greeting typing delay (min ms)</strong></label>
-          <input type="number" id="pbot_greeting_delay_ms" name="pbot_greeting_delay_ms"
-                 class="pbot-num-mid pbot-auto-num"
-                 min="0" step="50"
-                 value="<?php echo esc_attr($gDelay); ?>" />
-          <div class="pbot-muted" style="margin-top:6px;">
-            Minimum typing-dots time before the greeting shows.
-          </div>
+        <div class="pbot-row pbot-color-row">
+          <label for="pbot_send_hover_color"><strong>Hover color</strong></label>
+          <input type="color" class="pbot-color" id="pbot_send_hover_color_picker" value="<?php echo esc_attr($sendHoverColor); ?>" />
+          <input type="text" id="pbot_send_hover_color" name="pbot_send_hover_color"
+                 class="pbot-color-text"
+                 value="<?php echo esc_attr($sendHoverColor); ?>" />
         </div>
       </fieldset>
 
       <fieldset class="pbot-fieldset">
         <legend>Keys (for paid features)</legend>
-        <div class="pbot-row">
+        <div class="pbot-row pbot-row-stacked">
           <label for="pbot_openai_api_key"><strong>OpenAI API Key</strong></label>
           <input type="text" id="pbot_openai_api_key" name="pbot_openai_api_key"
                  class="regular-text"
                  value="<?php echo esc_attr($openaiKey); ?>" autocomplete="off" />
         </div>
-        <div class="pbot-row">
+        <div class="pbot-row pbot-row-stacked">
           <label for="pbot_product_key"><strong>Product Key</strong></label>
           <input type="text" id="pbot_product_key" name="pbot_product_key"
                  class="regular-text"

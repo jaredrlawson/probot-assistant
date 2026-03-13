@@ -1,107 +1,172 @@
 <?php if (!defined('ABSPATH')) exit; ?>
-<div class="wrap">
-  <h1>ProBot – AI Answering</h1>
-  <p class="description">Connect Twilio, verify your Product Key, then set the following webhook URLs on your Twilio number.</p>
-
-  <style>
-    .pba-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-    .card{background:#fff;border:1px solid #dcdcde;border-radius:8px;padding:16px}
-    .row{display:flex;gap:8px;align-items:center;margin:8px 0}
-    .mono{font-family:ui-monospace,Menlo,monospace;background:#f6f7f7;border:1px solid #e2e4e7;border-radius:6px;padding:4px 8px;overflow:auto}
-    .copy{margin-left:8px}
-    @media (max-width:900px){ .pba-grid{grid-template-columns:1fr} }
-  </style>
-
-  <div class="pba-grid">
-    <div class="card">
-      <h2>Twilio Settings</h2>
-      <form method="post" action="<?php echo esc_url(admin_url('options.php')); ?>">
-        <?php settings_fields('probot_answering'); ?>
-        <table class="form-table" role="presentation"><tbody>
-          <tr>
-            <th scope="row"><label>Enable AI Answering</label></th>
-            <td><label><input type="checkbox" name="pbot_answering_enabled" value="1" <?php checked($enabled,'1'); ?>> Enable</label></td>
-          </tr>
-          <tr>
-            <th scope="row"><label>Account SID</label></th>
-            <td><input type="text" name="pbot_twilio_account_sid" class="regular-text" value="<?php echo esc_attr($twilio_sid); ?>"></td>
-          </tr>
-          <tr>
-            <th scope="row"><label>Auth Token</label></th>
-            <td><input type="password" name="pbot_twilio_auth_token" class="regular-text" value="<?php echo esc_attr($twilio_token); ?>"></td>
-          </tr>
-          <tr>
-            <th scope="row"><label>Twilio Number</label></th>
-            <td><input type="text" name="pbot_twilio_number" class="regular-text" placeholder="+15551234567" value="<?php echo esc_attr($twilio_num); ?>"></td>
-          </tr>
-          <tr>
-            <th scope="row"><label>Forward To</label></th>
-            <td><input type="text" name="pbot_answering_forward_to" class="regular-text" placeholder="+15557654321, +15550001111" value="<?php echo esc_attr($forward_to); ?>"><p class="description">Comma-separated E.164 numbers. Used when caller presses 1.</p></td>
-          </tr>
-          <tr>
-            <th scope="row"><label>Greeting / Prompt</label></th>
-            <td><textarea name="pbot_answering_greeting" class="large-text" rows="3"><?php echo esc_textarea($greeting); ?></textarea></td>
-          </tr>
-          <tr>
-            <th scope="row"><label>License Server Base URL</label></th>
-            <td><input type="url" name="pbot_license_server_url" class="regular-text code" placeholder="https://example.com/wp-json/pbls/v1" value="<?php echo esc_attr($lic_base); ?>"></td>
-          </tr>
-        </tbody></table>
-        <p><button class="button button-primary">Save Settings</button></p>
-      </form>
+<div class="wrap probot-admin-wrap pbot-wrap">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h1 class="pbot-glitch-title">AI Answering Dashboard</h1>
+        <div id="pbot-hud-status" style="display: flex; align-items: center; gap: 12px; padding: 10px 20px; background: #fff; border: 1px solid #d0d7de; border-radius: 30px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-right: 0;">
+            <div id="pbot-terminal-pulse" class="pbot-status-pulse <?php echo $enabled ? 'is-active' : 'is-offline'; ?>"></div>
+            <span id="pbot-connection-status" style="font-weight: 600; color: <?php echo $enabled ? '#238636' : '#cf222e'; ?>;">
+                <?php echo $enabled ? 'Service Active' : 'Service Disabled'; ?>
+            </span>
+        </div>
     </div>
 
-    <div class="card">
-      <h2>Webhooks</h2>
-      <p>Paste these in Twilio → Phone Numbers → Your Number → <strong>Voice &amp; Fax</strong>:</p>
-      <div class="row"><strong>Voice webhook (A CALL COMES IN):</strong></div>
-      <div class="row">
-        <code class="mono" id="pba-answer-url"><?php echo esc_html($answer_url); ?></code>
-        <button class="button copy" data-target="pba-answer-url">Copy</button>
-      </div>
-      <div class="row">HTTP Method: <code class="mono">POST</code></div>
+    <div class="pbot-dashboard-grid" style="display: grid; grid-template-columns: 1fr 450px; gap: 20px; align-items: start;">
+        
+        <!-- LEFT COLUMN: Settings & Webhooks -->
+        <div class="pbot-main-panel">
 
-      <div class="row" style="margin-top:12px;"><strong>Status Callback URL:</strong></div>
-      <div class="row">
-        <code class="mono" id="pba-status-url"><?php echo esc_html($status_url); ?></code>
-        <button class="button copy" data-target="pba-status-url">Copy</button>
-      </div>
-      <div class="row">HTTP Method: <code class="mono">POST</code></div>
+            <!-- Twilio Settings -->
+            <div class="pbot-card" style="margin-bottom: 20px;">
+                <div class="pbot-card-header">
+                    <h2>Twilio Settings</h2>
+                </div>
+                <div class="pbot-card-body">
+                    <form method="post" action="options.php">
+                        <?php settings_fields('pbot_answering'); ?>
+                        
+                        <div class="pbot-row pbot-row-stacked" style="margin-bottom: 15px;">
+                            <label><input type="checkbox" name="pbot_answering_enabled" value="1" <?php checked($enabled,'1'); ?>> <strong>Enable AI Answering</strong></label>
+                        </div>
 
-      <hr>
-      <h2>License Check</h2>
-      <?php if ($lic_base && $pkey = get_option('pbot_product_key','')): ?>
-        <?php
-          $verify_url = trailingslashit($lic_base). 'keys/verify?key='.rawurlencode($pkey);
-          $resp = wp_remote_get($verify_url, ['timeout'=>10]);
-          $ok = !is_wp_error($resp) && wp_remote_retrieve_response_code($resp)===200;
-          $data = $ok ? json_decode(wp_remote_retrieve_body($resp), true) : null;
-        ?>
-        <?php if ($ok && !empty($data['ok'])): ?>
-          <p>Plan: <strong><?php echo esc_html(strtoupper($data['tier'] ?? 'FREE')); ?></strong> &middot;
-             Calls: <strong><?php echo !empty($data['calls']['unlimited'])?'∞': (int)($data['calls']['left'] ?? 0); ?></strong> left this month</p>
-        <?php else: ?>
-          <p><em>License verify failed.</em></p>
-        <?php endif; ?>
-      <?php else: ?>
-        <p class="description">Enter your License Server URL and Product Key in settings to see status here.</p>
-      <?php endif; ?>
+                        <div class="pbot-row pbot-row-stacked" style="margin-bottom: 12px;">
+                            <label>Account SID</label>
+                            <input type="text" name="pbot_twilio_sid" style="width: 100%;" value="<?php echo esc_attr($twilio_sid); ?>">
+                        </div>
 
-      <hr>
-      <h2>Quick Test (no charge)</h2>
-      <p>Open the Voice webhook URL in your browser (GET) to preview the initial TwiML response.</p>
+                        <div class="pbot-row pbot-row-stacked" style="margin-bottom: 12px;">
+                            <label>Auth Token</label>
+                            <input type="password" name="pbot_twilio_token" style="width: 100%;" value="<?php echo esc_attr($twilio_token); ?>">
+                        </div>
+
+                        <div class="pbot-row pbot-row-stacked" style="margin-bottom: 12px;">
+                            <label>Twilio Number</label>
+                            <input type="text" name="pbot_twilio_number" style="width: 100%;" placeholder="+15551234567" value="<?php echo esc_attr($twilio_num); ?>">
+                        </div>
+
+                        <div class="pbot-row pbot-row-stacked" style="margin-bottom: 12px;">
+                            <label>Forward To</label>
+                            <input type="text" name="pbot_answering_forward_to" style="width: 100%;" value="<?php echo esc_attr($forward_to); ?>">
+                        </div>
+
+                        <div class="pbot-row pbot-row-stacked" style="margin-bottom: 15px;">
+                            <label>Greeting / Prompt</label>
+                            <textarea name="pbot_answering_greeting" style="width: 100%; height: 80px;"><?php echo esc_textarea($greeting); ?></textarea>
+                        </div>
+
+                        <?php submit_button('Save Config', 'primary', 'submit', true, ['style' => 'width:100%;']); ?>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Webhooks -->
+            <div class="pbot-card" style="margin-bottom: 20px; background: #f6f8fa;">
+                <div class="pbot-card-header">
+                    <h2>Webhooks</h2>
+                </div>
+                <div class="pbot-card-body" style="font-size: 12px;">
+                    <p>Set these in Twilio for <strong>Voice & Fax</strong>:</p>
+                    
+                    <div style="margin-bottom: 10px;">
+                        <strong>Incoming Call:</strong><br>
+                        <code style="display:block; margin: 5px 0; padding: 5px; background: #fff; border: 1px solid #d0d7de;" id="pba-answer-url"><?php echo esc_html($answer_url); ?></code>
+                        <button class="button button-small copy" data-target="pba-answer-url">Copy URL</button>
+                    </div>
+
+                    <div>
+                        <strong>Status Callback:</strong><br>
+                        <code style="display:block; margin: 5px 0; padding: 5px; background: #fff; border: 1px solid #d0d7de;" id="pba-status-url"><?php echo esc_html($status_url); ?></code>
+                        <button class="button button-small copy" data-target="pba-status-url">Copy URL</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- License Info -->
+            <div class="pbot-card" style="background: #fff8e1; border-color: #ffe082;">
+                <div class="pbot-card-body" style="font-size: 12px; color: #856404;">
+                    <strong>AI Shield Status:</strong> Active<br>
+                    <strong>Model:</strong> Llama 3.1 8b<br>
+                    <strong>Protocol:</strong> Secure Proxy
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT COLUMN: Main Activity HUD -->
+        <div class="pbot-sidebar" style="position: sticky; top: 32px; align-self: start;">
+            
+            <!-- Business HUD (New Leads & Revenue) -->
+            <div class="pbot-card" style="background: #f0f6fc; border-color: #54aeff; margin-bottom: 20px;">
+                <div class="pbot-card-header" style="border-bottom-color: #54aeff;">
+                    <h2 style="color: #0969da; display: flex; align-items: center; gap: 8px;">📈 Business HUD</h2>
+                </div>
+                <div class="pbot-card-body" style="padding-top: 10px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 13px;">
+                        <div style="background: #fff; padding: 10px; border-radius: 6px; border: 1px solid #d0d7de; text-align: center;">
+                            <div style="color: #57606a; font-size: 11px; text-transform: uppercase;">👤 New Leads</div>
+                            <div id="pbot-stat-leads" style="font-size: 20px; font-weight: bold; color: #cf222e;">0</div>
+                        </div>
+                        <div style="background: #fff; padding: 10px; border-radius: 6px; border: 1px solid #d0d7de; text-align: center;">
+                            <div style="color: #57606a; font-size: 11px; text-transform: uppercase;">📅 Bookings</div>
+                            <div id="pbot-stat-bookings" style="font-size: 20px; font-weight: bold; color: #238636;">0</div>
+                        </div>
+                        <div style="background: #fff; padding: 10px; border-radius: 6px; border: 1px solid #d0d7de; text-align: center;">
+                            <div style="color: #57606a; font-size: 11px; text-transform: uppercase;">💬 AI Handled</div>
+                            <div id="pbot-stat-chats" style="font-size: 20px; font-weight: bold; color: #0969da;">0</div>
+                        </div>
+                        <div style="background: #fff; padding: 10px; border-radius: 6px; border: 1px solid #d0d7de; text-align: center;">
+                            <div style="color: #57606a; font-size: 11px; text-transform: uppercase;">💰 Revenue Est.</div>
+                            <div id="pbot-stat-revenue" style="font-size: 20px; font-weight: bold; color: #d97b00;">$0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pbot-card" style="margin-bottom: 20px; padding: 0; overflow: hidden; background: #0d1117; border-color: #30363d;">
+                <div class="pbot-card-header" style="padding: 10px 12px; border-bottom: 1px solid #30363d; background: #161b22;">
+                    <h2 style="margin: 0; color: #c9d1d9; font-size: 14px;">📩 Recent Texts</h2>
+                </div>
+                <div id="pbot-hud-texts" style="min-height: 120px; background: #0d1117; color: #c9d1d9; font-family: 'Courier New', monospace; padding: 10px 5px; font-size: 13px; line-height: 1.6; text-align: left; overflow-y: auto;">
+                    <span style="color: #8b949e; font-style: italic;">Monitoring for incoming SMS...</span>
+                </div>
+            </div>
+
+            <div class="pbot-card" style="margin-bottom: 20px; padding: 0; overflow: hidden; background: #0d1117; border-color: #30363d;">
+                <div class="pbot-card-header" style="padding: 10px 12px; border-bottom: 1px solid #30363d; background: #161b22;">
+                    <h2 style="margin: 0; color: #c9d1d9; font-size: 14px;">📞 Recent Calls</h2>
+                </div>
+                <div id="pbot-hud-calls" style="min-height: 120px; background: #0d1117; color: #c9d1d9; font-family: 'Courier New', monospace; padding: 10px 5px; font-size: 13px; line-height: 1.6; text-align: left; overflow-y: auto;">
+                    <span style="color: #8b949e; font-style: italic;">Monitoring for voice interactions...</span>
+                </div>
+            </div>
+
+            <div class="pbot-card" style="padding: 0; overflow: hidden; background: #0d1117; border-color: #30363d;">
+                <div class="pbot-card-header" style="padding: 10px 12px; border-bottom: 1px solid #30363d; background: #161b22;">
+                    <h2 style="margin: 0; color: #c9d1d9; font-size: 14px;">🧠 AI Activity Logs</h2>
+                </div>
+                <div id="pbot-hud-activity" style="min-height: 150px; background: #0d1117; color: #c9d1d9; font-family: 'Courier New', monospace; padding: 10px 5px; font-size: 13px; line-height: 1.6; text-align: left; overflow-y: auto;">
+                    <span style="color: #8b949e;">[SYSTEM]: AI Shield initialized and standing by.</span>
+                </div>
+            </div>
+
+        </div>
+
     </div>
-  </div>
-
-  <script>
-  (function(){
-    document.querySelectorAll('.copy').forEach(btn=>{
-      btn.addEventListener('click', e=>{
-        e.preventDefault();
-        const id=btn.getAttribute('data-target'); const el=document.getElementById(id);
-        if(!el) return; navigator.clipboard.writeText(el.textContent.trim()).then(()=>{btn.textContent='Copied!'; setTimeout(()=>btn.textContent='Copy',1200);});
-      });
-    });
-  })();
-  </script>
 </div>
+
+<script>
+jQuery(function($){
+    // Copy to clipboard helper
+    $('.copy').on('click', function(e){
+        e.preventDefault();
+        const id = $(this).data('target');
+        const el = document.getElementById(id);
+        if(!el) return;
+        navigator.clipboard.writeText(el.textContent.trim()).then(() => {
+            const $btn = $(this);
+            const oldText = $btn.text();
+            $btn.text('Copied!');
+            setTimeout(() => $btn.text(oldText), 1200);
+        });
+    });
+});
+</script>

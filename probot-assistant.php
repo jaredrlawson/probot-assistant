@@ -2,7 +2,7 @@
 /**
  * Plugin Name: ProBot Assistant
  * Description: Front-end chat assistant with teaser, JSON intents (packaged or manual), fuzzy matching, and admin Knowledge Base manager.
- * Version: 1.6.0-beta.1
+ * Version: 1.6.0-beta.3
  * Author: Jared Я Lawson
  * License: GPLv2 or later
  */
@@ -108,6 +108,7 @@ register_activation_hook(PROBOT_FILE, function () {
   add_option('pbot_brand_color', '#444444');
   add_option('pbot_halo_color',  'rgba(255,255,255,.7)');
   add_option('pbot_panel_color', '#ffffff');
+  add_option('pbot_panel_radius', 16);
 
   // Toast colors
   add_option('pbot_toast_bg_color',   'rgba(18,18,18,.92)');
@@ -138,22 +139,38 @@ register_activation_hook(PROBOT_FILE, function () {
   add_option('pbot_openai_api_key', '');
   add_option('pbot_product_key',    '');
   add_option('pbot_greeting_text',  '');
+
+  // New Beta 3 Connection Defaults
+  add_option('pbot_vps_url', 'http://localhost:3000');
+  add_option('pbot_vps_online', 0);
+  add_option('pbot_secret_key', '');
+  add_option('pbot_owner_name', 'The Admin');
+
+  // Trigger Deep Scan on Activation
+  add_option('pbot_activation_scan_pending', '1');
 });
 
 /* --------------------------------------------------------------------------
- * Front-end assets + config
+ * Front-end assets + Protocol Bridge Config
  * ----------------------------------------------------------------------- */
 add_action('wp_enqueue_scripts', function () {
   $css_rel = 'assets/frontend/probot-assistant.css';
   $js_rel  = 'assets/frontend/probot-assistant.js';
+  
+  // Hard version bust for Beta 3 Cross-Browser Sync
+  $ver = probot_asst_asset_ver($js_rel) . '.1604'; 
 
-  wp_enqueue_style('probot-assistant-css', pbot_url($css_rel), array(), probot_asst_asset_ver($css_rel));
-  wp_enqueue_script('probot-assistant-js', pbot_url($js_rel), array('jquery'), probot_asst_asset_ver($js_rel), true);
+  wp_enqueue_style('probot-assistant-css', pbot_url($css_rel), array(), $ver);
+  wp_enqueue_script('probot-assistant-js', pbot_url($js_rel), array('jquery'), $ver, true);
 
-  $source      = get_option('pbot_intents_source', 'packaged');
-  $manual      = trim(get_option('pbot_manual_intents', ''));
+  // Determine JSON source from unified Beta 3 toggle
+  $kb_source   = get_option('pbot_knowledge_source', 'manual');
+  $manual_data = trim(get_option('pbot_manual_intents', ''));
   $packagedURL = pbot_url('assets/json/intents.json');
-  $intents_url = ($source === 'manual' && $manual !== '')
+  
+  // If set to Brain, we still load the Packaged JSON for the greeting/tour
+  // If set to Manual, we load from AJAX
+  $intents_url = ($kb_source === 'manual' && $manual_data !== '')
     ? add_query_arg(array('action'=>'probot_intents'), admin_url('admin-ajax.php'))
     : $packagedURL;
 
@@ -172,6 +189,7 @@ add_action('wp_enqueue_scripts', function () {
     'intents_url'        => esc_url_raw($intents_url),
     'match_threshold'    => (float) get_option('pbot_match_threshold', 0.52),
     'greeting_delay_ms'  => (int) get_option('pbot_greeting_delay_ms', 2200),
+    'cache_ver'          => $ver,
 
     // Teaser config
     'teaser_message'     => $toastMsg,
@@ -179,19 +197,23 @@ add_action('wp_enqueue_scripts', function () {
     'teaser_show_count'  => $toastShow,
 
     // Toast colors
-    'teaser_bg_color'    => get_option('pbot_toast_bg_color', 'rgba(18,18,18,.92)'),
+    'teaser_bg_color'    => get_option('pbot_toast_bg_color', '#121212'),
+    'teaser_bg_opacity'  => (float) get_option('pbot_toast_bg_opacity', 0.92),
     'teaser_text_color'  => get_option('pbot_toast_text_color', '#ffffff'),
 
     // Colors
     'brand_color'        => get_option('pbot_brand_color', '#444444'),
-    'halo_color'         => get_option('pbot_halo_color', 'rgba(255,255,255,.7)'),
+    'halo_color'         => get_option('pbot_halo_color', '#ffffff'),
     'panel_color'        => get_option('pbot_panel_color', '#ffffff'),
+    'panel_radius'       => (int) get_option('pbot_panel_radius', 16),
+    'send_bg_color'      => get_option('pbot_send_bg_color', '#ffffff'),
+    'send_hover_color'   => get_option('pbot_send_hover_color', '#f7f7f7'),
 
     // Intensities
     'halo_intensity'     => (float) get_option('pbot_halo_intensity', 0.70),
     'pulse_intensity'    => (float) get_option('pbot_pulse_intensity', 1.00),
 
-    // Button borders → used by frontend JS to set CSS variables
+    // Button borders
     'btn_border_enabled' => (int)   get_option('pbot_btn_border_enabled', 0),
     'btn_border_weight'  => (float) get_option('pbot_btn_border_weight',  1),
     'btn_border_color'   =>          get_option('pbot_btn_border_color',   '#d0d0d0'),
@@ -199,6 +221,11 @@ add_action('wp_enqueue_scripts', function () {
     'send_border_enabled'=> (int)   get_option('pbot_send_border_enabled', 0),
     'send_border_weight' => (float) get_option('pbot_send_border_weight',  1),
     'send_border_color'  =>          get_option('pbot_send_border_color',   '#d0d0d0'),
+
+    // Mirror Bridge Context (Beta 3)
+    'response_engine'    => $kb_source,
+    'owner_name'         => get_option('pbot_owner_name', 'The Admin'),
+    'personality_notes'  => get_option('pbot_personality_notes', ''),
   ));
 });
 
@@ -212,9 +239,20 @@ add_action('admin_enqueue_scripts', function($hook){
 
   if ( ! $is_probot_screen && ! $is_plugins_list ) return;
 
-  wp_enqueue_style('pbot-admin', pbot_url('assets/admin/probot-admin.css'), array(), probot_asst_asset_ver('assets/admin/probot-admin.css'));
+  $ver = probot_asst_asset_ver('assets/admin/probot-admin.js') . '.1605';
+
+  wp_enqueue_style('pbot-admin', pbot_url('assets/admin/probot-admin.css'), array(), $ver);
   if ( $is_probot_screen ) {
-    wp_enqueue_script('pbot-admin', pbot_url('assets/admin/probot-admin.js'), array('jquery'), probot_asst_asset_ver('assets/admin/probot-admin.js'), true);
+    wp_enqueue_script('pbot-admin', pbot_url('assets/admin/probot-admin.js'), array('jquery'), $ver, true);
+    
+    // Admin Bridge Data
+    wp_localize_script('pbot-admin', 'pbotData', array(
+        'ajax_url'   => admin_url('admin-ajax.php'),
+        'nonce'      => wp_create_nonce('probot_nonce'),
+        'secret_key' => get_option('pbot_secret_key', ''),
+        'is_online'  => get_option('pbot_vps_online', 0),
+        'status'     => get_option('pbot_owner_status', 'online')
+    ));
   }
 });
 
@@ -235,6 +273,65 @@ add_action('admin_notices', function () {
 
 add_action('admin_notices', function(){
   if (!current_user_can('manage_options') || !is_admin()) return;
+  
+  if (get_option('pbot_activation_scan_pending')) {
+      echo '<div class="notice notice-info is-dismissible" id="pbot-scanning-notice"><p>🤖 <strong>ProBot Assistant:</strong> Performing an initial deep scan of your website content for the AI Brain...</p></div>';
+      ?>
+      <script>
+      jQuery(function($) {
+          async function performBackendDeepScan() {
+              try {
+                  const postRes = await fetch('<?php echo esc_url(rest_url('wp/v2/posts?per_page=5&_fields=title')); ?>');
+                  const pageRes = await fetch('<?php echo esc_url(rest_url('wp/v2/pages?search=about,booking,service&_fields=title,content')); ?>');
+                  
+                  let scanData = "INITIAL DEEP SCAN LOG:\n\n";
+                  
+                  if (postRes.ok) {
+                      const posts = await postRes.json();
+                      if (posts && posts.length) {
+                          scanData += "RECENT POSTS:\n" + posts.map(p => p.title.rendered).join("\n") + "\n\n";
+                      }
+                  }
+
+                  if (pageRes.ok) {
+                      const pages = await pageRes.json();
+                      if (pages && pages.length) {
+                          scanData += "CORE PAGES:\n" + pages.map(p => {
+                              // Strip tags safely
+                              let tmp = document.createElement("DIV");
+                              tmp.innerHTML = p.content.rendered;
+                              let content = tmp.textContent || tmp.innerText || "";
+                              return p.title.rendered + ": " + content.replace(/\s+/g, ' ').substring(0, 500);
+                          }).join("\n\n") + "\n\n";
+                      }
+                  }
+
+                  // Send to VPS via proxy
+                  $.post(ajaxurl, {
+                      action: 'pbot_vps_proxy',
+                      nonce: '<?php echo wp_create_nonce("probot_nonce"); ?>',
+                      endpoint: '/knowledge/train',
+                      payload: { knowledge: scanData }
+                  });
+
+                  // Tell WP to remove the flag
+                  $.post(ajaxurl, {
+                      action: 'pbot_complete_activation_scan',
+                      nonce: '<?php echo wp_create_nonce("probot_nonce"); ?>'
+                  }, function() {
+                      $('#pbot-scanning-notice p').html('✅ <strong>ProBot Assistant:</strong> Deep scan complete. Brain initialized.');
+                  });
+
+              } catch (e) {
+                  console.error("ProBot Scan Error:", e);
+              }
+          }
+          performBackendDeepScan();
+      });
+      </script>
+      <?php
+  }
+
   $page = isset($_GET['page']) ? sanitize_text_field($_GET['page']) : '';
   if ($page !== 'probot-assistant' && $page !== 'probot-assistant-knowledge') return;
   $source = get_option('pbot_intents_source', 'packaged');
@@ -248,6 +345,14 @@ add_action('admin_notices', function(){
 /* --------------------------------------------------------------------------
  * JSON AJAX + helpers
  * ----------------------------------------------------------------------- */
+add_action('wp_ajax_pbot_complete_activation_scan', function() {
+    check_ajax_referer('probot_nonce', 'nonce');
+    if (current_user_can('manage_options')) {
+        delete_option('pbot_activation_scan_pending');
+        wp_send_json_success();
+    }
+});
+
 add_action('wp_ajax_probot_intents',        'probot_intents_json');
 add_action('wp_ajax_nopriv_probot_intents', 'probot_intents_json');
 
@@ -340,9 +445,14 @@ add_action('admin_init', function () {
  * Menus + includes
  * ----------------------------------------------------------------------- */
 add_action('admin_menu', function () {
-  add_menu_page('ProBot Assistant','ProBot Assistant','manage_options','probot-assistant','probot_render_settings_page','dashicons-format-chat',58);
-  add_submenu_page('probot-assistant','Settings','Settings','manage_options','probot-assistant','probot_render_settings_page');
+  // Main Menu - points to Dashboard (Secretary HUD)
+  add_menu_page('ProBot Assistant','ProBot Assistant','manage_options','probot-assistant','pbot_render_secretary_page','dashicons-format-chat',58);
+  
+  // Submenus
+  add_submenu_page('probot-assistant','Dashboard','Dashboard','manage_options','probot-assistant','pbot_render_secretary_page');
+  add_submenu_page('probot-assistant','UI Settings','UI Settings','manage_options','probot-assistant-settings','probot_render_settings_page');
   add_submenu_page('probot-assistant','Knowledge Base','Knowledge Base','manage_options','probot-assistant-knowledge','probot_render_responses_page');
+  add_submenu_page('probot-assistant','AI Answering','AI Answering','manage_options','probot-assistant-answering','probot_render_answering_page');
   add_submenu_page('probot-assistant','Article Writer','Article Writer','manage_options','probot-assistant-writer','probot_render_article_writer_page');
 });
 
@@ -375,6 +485,10 @@ if ( is_admin() ) {
     ]);
   }, 1);
 }
+
+/** SECRETARY (Dashboard & Terminal) */
+require_once pbot_path('includes/admin-secretary-register.php');
+require_once pbot_path('includes/admin-secretary-page.php');
 
 /** SETTINGS (split: register + page) */
 require_once pbot_path('includes/admin-settings-register.php');

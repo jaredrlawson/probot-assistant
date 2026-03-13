@@ -8,11 +8,24 @@ jQuery(function ($) {
 
   /* ---------------- Colors from Settings ---------------- */
   if (cfg.brand_color) document.documentElement.style.setProperty('--brand', cfg.brand_color);
+  if (cfg.bubble_bg_color) document.documentElement.style.setProperty('--bubble-bg', cfg.bubble_bg_color);
+  if (cfg.bubble_icon_color) document.documentElement.style.setProperty('--bubble-fg', cfg.bubble_icon_color);
   if (cfg.panel_color) { /* reserved for future */ }
+  if (cfg.panel_radius) document.documentElement.style.setProperty('--panel-radius', cfg.panel_radius + 'px');
 
   // Teaser colors
-  if (cfg.teaser_bg_color)   document.documentElement.style.setProperty('--teaser-bg', cfg.teaser_bg_color);
+  if (cfg.teaser_bg_color) {
+    const hex = cfg.teaser_bg_color;
+    const op = cfg.teaser_bg_opacity || 0.92;
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    document.documentElement.style.setProperty('--teaser-bg', `rgba(${r},${g},${b},${op})`);
+  }
   if (cfg.teaser_text_color) document.documentElement.style.setProperty('--teaser-fg', cfg.teaser_text_color);
+
+  if (cfg.send_bg_color) document.documentElement.style.setProperty('--send-bg', cfg.send_bg_color);
+  if (cfg.send_hover_color) document.documentElement.style.setProperty('--send-bg-hover', cfg.send_hover_color);
 
   /* ---------------- Button border options (preserved) ---------------- */
   // Close/Minimize icon buttons
@@ -31,6 +44,8 @@ jQuery(function ($) {
     document.documentElement.style.setProperty('--send-border-width', enabled ? (weight + 'px') : '0px');
     document.documentElement.style.setProperty('--send-border-color', color);
   }
+  if (cfg.send_bg_color) document.documentElement.style.setProperty('--send-bg', cfg.send_bg_color);
+  if (cfg.send_hover_color) document.documentElement.style.setProperty('--send-bg-hover', cfg.send_hover_color);
 
   /* ---------------- Color helpers for halo ---------------- */
   function parseColor(str){
@@ -106,6 +121,7 @@ jQuery(function ($) {
   /* ---------------- BODY SCROLL LOCK ---------------- */
   let scrollY = 0;
   function lockBody() {
+    if (window.matchMedia("(min-width: 900px)").matches) return; // SKIP LOCK ON DESKTOP
     scrollY = window.scrollY || document.documentElement.scrollTop || 0;
     document.body.style.position = 'fixed';
     document.body.style.top = `-${scrollY}px`;
@@ -115,6 +131,7 @@ jQuery(function ($) {
     document.body.classList.add('probot-locked');
   }
   function unlockBody() {
+    if (window.matchMedia("(min-width: 900px)").matches) return; // SKIP UNLOCK ON DESKTOP
     document.body.style.position = '';
     document.body.style.top = '';
     document.body.style.left = '';
@@ -155,6 +172,7 @@ jQuery(function ($) {
             <input type="text" id="probot-chat-input" placeholder="Type here..." autocomplete="off" />
             <button id="probot-send" type="submit" aria-label="Send" title="Send">
               <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 12h14M14 7l5 5-5 5"/></svg>
+              <span>Send</span>
             </button>
           </form>
         </div>
@@ -260,6 +278,7 @@ jQuery(function ($) {
   function ding(){
     if (!cfg.sound_enabled) return;
     if (!audioEl) return;
+    if (!$overlay.is(':visible')) return; // ADDED: Only ding if the chat is actually open
 
     // allow dings while minimized, but never when CLOSED
     if (window.__pbotIsClosed) return;
@@ -289,7 +308,9 @@ jQuery(function ($) {
   $(document).on('click touchstart keydown', function one(){ unlockAudio(); $(document).off('click touchstart keydown', one); });
 
   /* ---------------- UTILITIES ---------------- */
-  function scrollToBottom(){ $scroll.scrollTop($scroll[0].scrollHeight); }
+  function scrollToBottom(){ 
+    $scroll.stop().animate({ scrollTop: $scroll[0].scrollHeight }, 300); 
+  }
   function ensureScrollable(){
     const el = $scroll[0]; if(!el) return;
     $scroll.css('overflow', el.scrollHeight > el.clientHeight + 2 ? 'auto' : 'hidden');
@@ -402,8 +423,11 @@ jQuery(function ($) {
     for (const it of intentsList){
       for (const trg of (it.triggers||[])){
         if (!trg) continue;
-        const t = String(trg);
-        if (q.includes(t.toLowerCase())){
+        const t = String(trg).toLowerCase();
+        
+        // Word boundary check for exact substring hits
+        const regex = new RegExp('\\b' + t.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&') + '\\b', 'i');
+        if (q.includes(t) && regex.test(q)){
           return {score: 1, reply: it.reply || null};
         }
         const score = Math.max(
@@ -417,17 +441,37 @@ jQuery(function ($) {
     }
     return best;
   }
-  function matchIntent(q){
+  function matchIntent(q, isOwner = false){
     if (!intents) return null;
     const query = (q||'').toLowerCase().trim();
+    const isBrain = (cfg.response_engine === 'brain');
+    const wordCount = query.split(/\s+/).length;
+
+    // 1. If user is the OWNER (Mirror Mode), bypass JSON entirely.
+    // We want the owner to ALWAYS talk to the Brain.
+    if (isOwner) return null;
+
+    // 2. If Brain Mode is ON, only allow short commands (1-2 words) to stay local
+    if (isBrain && wordCount >= 3) return null;
+
+    // 3. Strict Word-Boundary matching
     for (const it of intents.intents){
       for (const t of (it.triggers||[])){
-        if (t && query.includes(String(t).toLowerCase())){
+        if (!t) continue;
+        const trigger = String(t).toLowerCase();
+        
+        // Use a strict word-boundary regex
+        const regex = new RegExp('(^|\\s)' + trigger.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&') + '($|\\s|[.,!?])', 'i');
+        if (query === trigger || regex.test(query)) {
+          // If Brain is ON, we only match if the query IS the trigger exactly
+          if (isBrain && query !== trigger) continue; 
           return it.reply || null;
         }
       }
     }
-    if (query.length >= 3){
+
+    // 4. Fuzzy Matching (Disabled if Brain Mode is ON)
+    if (!isBrain && query.length >= 3){
       const {score, reply} = bestFuzzyMatch(query, intents.intents);
       if (score >= (typeof cfg.match_threshold === 'number' ? cfg.match_threshold : 0.52)) return reply;
     }
@@ -495,6 +539,94 @@ jQuery(function ($) {
     setTimeout(()=> $teaser.removeClass('in out').hide(), dur + 800);
   }
 
+  /* ---------------- DEEP SCAN LOGIC ---------------- */
+  let siteDeepContext = "";
+  async function performDeepScan() {
+    console.log("🔍 ProBot: Starting Global Site Scan...");
+    const siteTitle = document.title;
+    const metaDesc = $('meta[name="description"]').attr('content') || "";
+    let recentPosts = [];
+    let pageInsights = "";
+
+    try {
+      // 1. Fetch last 5 post titles
+      const postRes = await fetch('/wp-json/wp/v2/posts?per_page=5&_fields=title');
+      if (postRes.ok) {
+        const posts = await postRes.json();
+        recentPosts = posts.map(p => p.title.rendered);
+      }
+
+      // 2. SEARCH FOR BOOKING/ABOUT INFO
+      const pageRes = await fetch('/wp-json/wp/v2/pages?search=about,booking,service&_fields=title,content');
+      if (pageRes.ok) {
+        const pages = await pageRes.json();
+        pageInsights = pages.map(p => {
+          // Strip HTML tags to save tokens
+          const cleanContent = p.content.rendered.replace(/<[^>]*>?/gm, '').substring(0, 800);
+          return `PAGE: ${p.title.rendered}
+CONTENT: ${cleanContent}`;
+        }).join("\n---\n");
+      }
+    } catch (e) {
+      console.warn("ProBot: Deep Scan interrupted:", e);
+    }
+
+    siteDeepContext = `
+      SITE: ${siteTitle}
+      DESC: ${metaDesc}
+      LATEST POSTS: ${recentPosts.join(", ")}
+      SPECIFIC PAGE DATA (Booking/About):
+      ${pageInsights}
+    `.trim();
+    
+    console.log("🧠 ProBot: DEEP SCAN COMPLETE. Booking process & Pages indexed.");
+  }
+  performDeepScan();
+
+  /* ---------------- PERSISTENCE ---------------- */
+  function saveState() {
+    const history = [];
+    $body.find('.msg').each(function() {
+      const $m = $(this);
+      const isBot = $m.hasClass('bot');
+      const content = $m.find('.bubble').html();
+      // Don't save if it is currently typing
+      if (content && !$m.hasClass('typing')) {
+        history.push({ role: isBot ? 'bot' : 'me', content: content });
+      }
+    });
+    localStorage.setItem('pbot_history', JSON.stringify(history));
+    localStorage.setItem('pbot_visible', $overlay.is(':visible') ? 'open' : 'minimized');
+  }
+
+  function loadState() {
+    const history = JSON.parse(localStorage.getItem('pbot_history') || '[]');
+    const state = localStorage.getItem('pbot_visible') || 'minimized';
+
+    if (history.length > 0) {
+      $body.empty();
+      history.forEach(m => {
+        const cls = m.role === 'bot' ? 'msg bot' : 'msg me';
+        const avatar = m.role === 'bot' ? '<div class="avatar" aria-hidden="true">🤖</div>' : '';
+        const $m = $(`<div class="${cls}">${avatar}<div class="bubble"></div></div>`);
+        // Bot messages use normal whitespace to honor HTML structure; 'me' messages use pre-wrap for text
+        const ws = m.role === 'bot' ? 'normal' : 'pre-wrap';
+        $m.find('.bubble').css({'white-space': ws}).html(m.content);
+        $body.append($m);
+      });      scrollToBottom();
+      ensureScrollable();
+    }
+
+    if (state === 'open') {
+      // Restore open state without greeting animation
+      window.__pbotIsClosed = false;
+      window.__pbotIsMinimized = false;
+      $overlay.show().attr('aria-hidden','false'); 
+      lockBody(); onVV();
+      $button.hide();
+    }
+  }
+
 /* ---------------- OPEN/CLOSE (no greet on reopen; sound rules) ---------------- */
   async function maybeShowOpenGreeting(){
     const $typing = $('<div class="msg bot typing"><div class="avatar" aria-hidden="true">🤖</div><div class="bubble"><span class="typing-dots"><i></i><i></i><i></i></span></div></div>');
@@ -528,6 +660,7 @@ jQuery(function ($) {
     $overlay.fadeIn(120, async () => {
       $overlay.attr('aria-hidden','false'); lockBody(); onVV();
       $scroll.css('overflow','hidden');
+      saveState();
 
       // IMPORTANT: greet ONLY if it's a fresh session (no prior messages)
       const fresh = ($body.children().length === 0);
@@ -543,6 +676,7 @@ jQuery(function ($) {
     $overlay.fadeOut(120, () => {
       $overlay.attr('aria-hidden','true'); unlockBody();
       $scroll.css('overflow','hidden');
+      saveState();
     });
     $button.fadeIn(120).addClass('pbot-pulse');
   }
@@ -553,6 +687,7 @@ jQuery(function ($) {
     window.__pbotIsMinimized = false;
     stopAnySound();
     $body.empty();
+    saveState();
     await minimizeChat();
   }
 
@@ -586,26 +721,95 @@ jQuery(function ($) {
 
     const msg = $input.val().trim(); if (!msg) return;
 
-    const $m = $('<div class="msg me"><div class="bubble"></div></div>');
-    $m.find('.bubble').text(msg); $body.append($m);
-    $input.val(''); scrollToBottom(); ensureScrollable();
+    // --- NEW: Mirror Mode Exit Command ---
+    if (msg.toLowerCase() === '!exit' || msg.toLowerCase() === 'logout') {
+        sessionStorage.removeItem('pbot_active_key');
+        $input.val('');
+        $body.append(`<div class="msg me"><div class="bubble">${msg}</div></div>`);
+        const $exitMsg = $('<div class="msg bot"><div class="avatar" aria-hidden="true">🤖</div><div class="bubble">Creator Mode disabled. Standard Assistant active.</div></div>');
+        $body.append($exitMsg);
+        scrollToBottom(); ensureScrollable(); ding(); saveState();
+        return;
+    }
 
-    await loadIntents(false);
-    const jsonReply = matchIntent(msg);
-    if (!jsonReply) return;
+    const $m = $('<div class="msg me"><div class="bubble"></div></div>');
+    $m.find('.bubble').css({'white-space': 'pre-wrap'}).text(msg); $body.append($m);
+    $input.val(''); scrollToBottom(); ensureScrollable();
+    saveState();
 
     // ensure only ONE typing bubble exists
     $body.find('.msg.bot.typing').remove();
-
-    const $typing = $('<div class="msg bot typing"><div class="avatar" aria-hidden="true">🤖</div><div class="bubble"><span class="typing-dots"><i></i><i></i><i></i></span></div></div>');
+    const $typing = $('<div class="msg bot typing"><div class="avatar" aria-hidden="true">🤖</div><div class="bubble"></div></div>');
+    $typing.find('.bubble').css({'white-space': 'normal'}).html('<span class="typing-dots"><i></i><i></i><i></i></span>');
     $body.append($typing); scrollToBottom();
+    // 1. Secret Key / Owner Check (Secure Backend Ping)
+    try {
+        const authRes = await $.post(cfg.ajax_url, { 
+            action: 'pbot_check_auth', 
+            nonce: cfg.nonce,
+            message: msg 
+        });
+        if (authRes.success && authRes.data && authRes.data.is_owner) {
+            sessionStorage.setItem('pbot_active_key', msg);
+            $typing.removeClass('typing').find('.bubble').html("Identity Mirror Active. Creator Mode Enabled.");
+            scrollToBottom(); ensureScrollable(); ding(); saveState();
+            return;
+        }
+    } catch(e) {} // Fail silently if not auth, continue to normal logic
 
-    const waitMs = typingDelayFor(jsonReply, { min: 700, max: 12000, base: 500, perChar: 38, perWord: 35 });
-    setTimeout(()=>{
-      $typing.removeClass('typing').find('.bubble').html(jsonReply);
-      scrollToBottom(); ensureScrollable();
-      ding(); // one ding per finalized reply
-    }, waitMs);
+    await loadIntents(false);
+    
+    // 2. Intelligence Check
+    const hasActiveSession = !!sessionStorage.getItem('pbot_active_key');
+    const localMatch = matchIntent(msg, hasActiveSession);
+    const isBrainMode = (cfg.response_engine === 'brain');
+
+    // 3. Logic Handoff
+    if (hasActiveSession || (isBrainMode && (!localMatch || localMatch === "TRIGGER_BRAIN"))) {
+      // Fallback to AI Secretary Brain
+      $typing.find('.bubble').html('<span class="typing-dots"><i></i><i></i><i></i></span>');
+
+      $.ajax({
+          url: cfg.ajax_url,
+          method: 'POST',
+          data: {
+              action: 'pbot_vps_proxy',
+              nonce: cfg.nonce,
+              endpoint: '/chat',
+              source: 'frontend', // Identify as public-facing widget
+              active_key: sessionStorage.getItem('pbot_active_key') || '',
+              payload: { 
+                  message: msg,
+                  site_context: siteDeepContext 
+              }
+          },
+          success: function(response) {
+              const reply = response.reply || (response.data && response.data.message) || response.message || "I've lost the connection to the stars.";
+              const waitMs = typingDelayFor(reply, { min: 500, max: 12000, base: 400, perChar: 25, perWord: 20 });
+              
+              setTimeout(() => {
+                  $typing.removeClass('typing').find('.bubble').html(reply); // Clean HTML
+                  scrollToBottom(); ensureScrollable();
+                  ding();
+                  saveState();
+              }, waitMs);
+          },
+          error: function() {
+              $typing.removeClass('typing').find('.bubble').text("The Alchemical connection failed.");
+              scrollToBottom(); ensureScrollable();
+          }
+      });
+    } else {
+      // Local JSON Reply
+      const jsonReply = localMatch || `I'm not quite sure about that. Rephrase or ask ${cfg.owner_name}?`;
+      const waitMs = typingDelayFor(jsonReply, { min: 400, max: 12000, base: 300, perChar: 25, perWord: 20 });
+      setTimeout(()=>{
+        $typing.removeClass('typing').find('.bubble').html(jsonReply);
+        scrollToBottom(); ensureScrollable();
+        ding(); // one ding per finalized reply
+        saveState();
+      }, waitMs);
+    }
   });
 
   /* ---------------- INIT ---------------- */
@@ -631,4 +835,5 @@ jQuery(function ($) {
     window.visualViewport.addEventListener('scroll',  ()=>{ if ($teaser.is(':visible')) placeTeaser(); });
   }
   ensureScrollable();
+  loadState();
 });

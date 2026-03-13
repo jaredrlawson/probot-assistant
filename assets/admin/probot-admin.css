@@ -1,15 +1,26 @@
 /* ProBot Admin UI (mobile-first, overflow-safe) */
 
 /* Layout shells */
-.pbot-wrap { max-width: 1020px; }
+.pbot-wrap { max-width: 100%; margin-right: 0; padding-right: 0; }
 .pbot-card{
   background:#fff; border:1px solid #dcdcde; border-radius:8px;
-  padding:16px; margin:18px 0; overflow:hidden;
+  padding:16px; margin:18px 0;
 }
 
 /* Rows */
 .pbot-row{
   display:flex; gap:14px; align-items:center; flex-wrap:wrap; min-width:0;
+}
+.pbot-row-stacked {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 8px !important;
+}
+.pbot-row-stacked > label {
+  display: block !important;
+  width: 100% !important;
+  margin-bottom: 4px !important;
 }
 .pbot-row + .pbot-row{ margin-top:12px; }
 
@@ -329,3 +340,107 @@ select.pbot-select{ min-width:320px; max-width:100%; }
 
 /* small utility if you ever need tighter spacing next to titles */
 .pbot-badge.ml-8{ margin-left:8px; }
+
+/* Status Pulsing Animations */
+@keyframes pbot-pulse-green {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(35, 134, 54, 0.7); }
+    70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(35, 134, 54, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(35, 134, 54, 0); }
+}
+@keyframes pbot-pulse-red {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(207, 34, 46, 0.7); }
+    70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(207, 34, 46, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(207, 34, 46, 0); }
+}
+
+.pbot-status-pulse {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+}
+.pbot-status-pulse.is-active {
+    animation: pbot-pulse-green 2s infinite;
+    background: #238636;
+}
+.pbot-status-pulse.is-offline {
+    animation: pbot-pulse-red 2s infinite;
+    background: #cf222e;
+}
+
+/* Compliance Modal (Stay Connected) */
+#pbot-compliance-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 999999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+}
+#pbot-compliance-modal {
+    background: #0d1117;
+    color: #c9d1d9;
+    width: 100%;
+    max-width: 400px;
+    padding: 30px;
+    border-radius: 12px;
+    border: 1px solid #30363d;
+    box-shadow: 0 0 20px rgba(88, 166, 255, 0.2);
+    text-align: center;
+}
+#pbot-compliance-modal h2 {
+    color: #58a6ff;
+    margin-bottom: 15px;
+}
+#pbot-compliance-modal p {
+    font-size: 14px;
+    line-height: 1.5;
+    margin-bottom: 20px;
+}
+#pbot-compliance-modal .pbot-input-wrap {
+    margin-bottom: 20px;
+}
+#pbot-compliance-modal input[type="tel"] {
+    width: 100%;
+    background: #161b22;
+    border: 1px solid #30363d;
+    color: #f0f6fc;
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 16px;
+    outline: none;
+    text-align: center;
+}
+#pbot-compliance-modal button {
+    background: #238636;
+    color: #fff;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    font-size: 16px;
+    transition: background 0.2s;
+}
+#pbot-compliance-modal button:hover {
+    background: #2ea043;
+}
+#pbot-compliance-modal .pbot-terms {
+    font-size: 11px;
+    color: #8b949e;
+    margin-top: 15px;
+    line-height: 1.4;
+}
+#pbot-compliance-modal .pbot-close-link {
+    display: block;
+    margin-top: 15px;
+    color: #8b949e;
+    text-decoration: none;
+    font-size: 13px;
+}
+#pbot-compliance-modal .pbot-close-link:hover {
+    color: #c9d1d9;
+}

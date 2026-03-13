@@ -39,6 +39,8 @@
   --pulse-spread: 28px;  /* halo ring size at peak */
   --pulse-scale:  0.03;  /* bubble scale amount at peak */
 
+  --panel-radius: 16px;  /* overridable by Settings */
+
   /* Icon buttons (close/minimize) — overridable by Settings */
   --icon-btn-bg:#fff;
   --icon-btn-color:#111;
@@ -57,6 +59,8 @@
 }
 
 *{ box-sizing:border-box; }
+
+html { scrollbar-gutter: stable; }
 
 /* Lock page when panel is open */
 body.probot-locked{ touch-action:none; overscroll-behavior:none; }
@@ -205,6 +209,11 @@ body.probot-locked{ touch-action:none; overscroll-behavior:none; }
 .msg{ display:flex; gap:8px; }
 .msg .avatar{ width:22px; height:22px; display:flex; align-items:center; justify-content:center; }
 .msg .bubble{ background:#f5f5f7; color:#111; padding:12px 14px; border-radius:14px; max-width:90%; }
+.msg .bubble p { margin: 0 0 10px 0; }
+.msg .bubble p:last-child { margin-bottom: 0; }
+.msg .bubble ul { margin: 10px 0; padding-left: 20px; }
+.msg .bubble li { margin-bottom: 5px; }
+.msg .bubble h2, .msg .bubble h3 { font-size: 16px; margin: 12px 0 8px 0; }
 .msg.me{ justify-content:flex-end; }
 .msg.me .bubble{ background:#111; color:#fff; }
 
@@ -220,7 +229,7 @@ body.probot-locked{ touch-action:none; overscroll-behavior:none; }
 #probot-inputbar{ position:sticky; bottom:0; background:#fff; border-top:1px solid #eee; padding:8px 10px; }
 #probot-form{ display:flex; gap:8px; }
 #probot-chat-input{
-  flex:1; height:44px; border-radius:22px; padding:0 14px; border:1px solid #ddd; outline:none;
+  flex:1; height:44px; border-radius:10px !important; padding:0 14px; border:1px solid #ddd; outline:none;
 }
 #probot-chat-input:focus{ border-color:#bbb; }
 
@@ -260,7 +269,7 @@ body.probot-locked{ touch-action:none; overscroll-behavior:none; }
   #probot-chat-panel{
     width:420px; max-width:92vw; height:78vh;
     right:24px; bottom:24px; left:auto; top:auto;
-    border-radius:16px;      /* popup style on desktop */
+    border-radius:var(--panel-radius);      /* popup style on desktop */
     box-shadow:0 16px 48px rgba(0,0,0,.18);
   }
   #probot-chat-mask{ background:rgba(0,0,0,.22); }

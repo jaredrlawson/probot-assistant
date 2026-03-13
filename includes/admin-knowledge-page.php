@@ -89,6 +89,8 @@ function probot_render_responses_page() {
     'manual'       => $manual,
     'current_json' => $current_json,
     'intents_arr'  => $intents_arr,
+    'thresh'       => (float) get_option('pbot_match_threshold', 0.52),
+    'gDelay'       => (int)   get_option('pbot_greeting_delay_ms', 2200),
     'ajax_url'     => admin_url('admin-ajax.php'),
     'nonce'        => wp_create_nonce('probot_nonce'),
     'preview_url'  => add_query_arg(['action'=>'probot_intents'], admin_url('admin-ajax.php')),

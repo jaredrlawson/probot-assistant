@@ -28,12 +28,18 @@ function probot_render_settings_page() {
 
     // Colors
     'brandColor' => get_option('pbot_brand_color', '#444444'),
-    'haloColor'  => get_option('pbot_halo_color',  'rgba(255,255,255,.7)'),
+    'haloColor'  => get_option('pbot_halo_color',  '#ffffff'),
     'panelColor' => get_option('pbot_panel_color', '#ffffff'),
+    'panelRadius' => (int) get_option('pbot_panel_radius', 16),
+
+    // Send button colors
+    'sendBgColor'    => get_option('pbot_send_bg_color',    '#ffffff'),
+    'sendHoverColor' => get_option('pbot_send_hover_color', '#f7f7f7'),
 
     // Toast colors
-    'toastBg'    => get_option('pbot_toast_bg_color',   'rgba(18,18,18,.92)'),
-    'toastFg'    => get_option('pbot_toast_text_color', '#ffffff'),
+    'toastBg'      => get_option('pbot_toast_bg_color',   '#121212'),
+    'toastOpacity' => (float) get_option('pbot_toast_bg_opacity', 0.92),
+    'toastFg'      => get_option('pbot_toast_text_color', '#ffffff'),
 
     // Sliders
     'haloInt'   => (float) get_option('pbot_halo_intensity', 0.70),

@@ -12,26 +12,24 @@ add_action('admin_init', function () {
   register_setting('pbot_settings', 'pbot_teaser_enabled');
   register_setting('pbot_settings', 'pbot_sound_enabled');
 
-  // Fuzzy + greeting delay
-  register_setting('pbot_settings', 'pbot_match_threshold', [
-    'type'=>'number',
-    'sanitize_callback'=>function($v){ $v = (float)$v; if($v<0)$v=0; if($v>1)$v=1; return $v; },
-    'default'=>0.52
-  ]);
-  register_setting('pbot_settings', 'pbot_greeting_delay_ms', [
-    'type'=>'integer',
-    'sanitize_callback'=>function($v){ $v = (int)$v; return max(0,$v); },
-    'default'=>2200
-  ]);
-
   // Colors
   register_setting('pbot_settings', 'pbot_brand_color', ['type'=>'string','sanitize_callback'=>'sanitize_text_field']);
-  register_setting('pbot_settings', 'pbot_halo_color',  ['type'=>'string','sanitize_callback'=>'sanitize_text_field']);
+  register_setting('pbot_settings', 'pbot_halo_color',  ['type'=>'string','sanitize_callback'=>'sanitize_text_field', 'default'=>'#ffffff']);
   register_setting('pbot_settings', 'pbot_panel_color', ['type'=>'string','sanitize_callback'=>'sanitize_text_field']);
+  register_setting('pbot_settings', 'pbot_panel_radius', ['type'=>'integer','sanitize_callback'=>function($v){ return max(0, min(25, (int)$v)); }, 'default'=>16]);
+
+  // Send button colors
+  register_setting('pbot_settings', 'pbot_send_bg_color',    ['type'=>'string','sanitize_callback'=>'sanitize_text_field', 'default'=>'#ffffff']);
+  register_setting('pbot_settings', 'pbot_send_hover_color', ['type'=>'string','sanitize_callback'=>'sanitize_text_field', 'default'=>'#f7f7f7']);
 
   // Toast colors
-  register_setting('pbot_settings', 'pbot_toast_bg_color',   ['type'=>'string','sanitize_callback'=>'sanitize_text_field']);
-  register_setting('pbot_settings', 'pbot_toast_text_color', ['type'=>'string','sanitize_callback'=>'sanitize_text_field']);
+  register_setting('pbot_settings', 'pbot_toast_bg_color',   ['type'=>'string','sanitize_callback'=>'sanitize_text_field', 'default'=>'#121212']);
+  register_setting('pbot_settings', 'pbot_toast_bg_opacity', [
+    'type'=>'number',
+    'sanitize_callback'=>function($v){ $v=(float)$v; return max(0.0, min(1.0, $v)); },
+    'default'=>0.92
+  ]);
+  register_setting('pbot_settings', 'pbot_toast_text_color', ['type'=>'string','sanitize_callback'=>'sanitize_text_field', 'default'=>'#ffffff']);
 
   // Sliders (halo/pulse)
   register_setting('pbot_settings', 'pbot_halo_intensity', [

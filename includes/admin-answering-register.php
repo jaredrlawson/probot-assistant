@@ -1,116 +1,151 @@
 <?php
+/**
+ * ProBot Assistant — Admin: Answering Registration
+ * Beta 3 Upgrade: Protocol Bridge + Issue & Answering Configuration Proxy
+ */
 if (!defined('ABSPATH')) exit;
 
-/**
- * ProBot Assistant — AI Answering: registrar
- * - Adds admin submenu
- * - Registers options
- * - Registers Twilio webhook (REST)
- * - License gating happens in the controller (admin-answering-page.php)
- */
-
-// ---------- Options ----------
+// ---------- 1. Options Registration ----------
 add_action('admin_init', function () {
-  register_setting('pbot_answering', 'pbot_twilio_sid');
-  register_setting('pbot_answering', 'pbot_twilio_token');
-  register_setting('pbot_answering', 'pbot_twilio_number');
-  register_setting('pbot_answering', 'pbot_answering_enabled', ['type'=>'boolean', 'default'=>0]);
-  register_setting('pbot_answering', 'pbot_answering_forward_to'); // optional live transfer target
-  register_setting('pbot_answering', 'pbot_answering_notify_email'); // where to send transcriptions/messages
-});
+    // Twilio / Voice Settings
+    register_setting('pbot_answering', 'pbot_twilio_sid');
+    register_setting('pbot_answering', 'pbot_twilio_token');
+    register_setting('pbot_answering', 'pbot_twilio_number');
+    register_setting('pbot_answering', 'pbot_answering_enabled', ['type' => 'boolean', 'default' => 0]);
+    register_setting('pbot_answering', 'pbot_answering_forward_to');
+    register_setting('pbot_answering', 'pbot_answering_notify_email');
+    register_setting('pbot_answering', 'pbot_answering_greeting');
 
-// ---------- Submenu ----------
-add_action('admin_menu', function () {
-  // Parent should be your existing main plugin menu slug
-  add_submenu_page(
-    'probot-assistant',
-    'AI Answering',
-    'AI Answering',
-    'manage_options',
-    'probot-answering',
-    'probot_render_answering_page'
-  );
-});
-
-// ---------- REST: Twilio webhook ----------
-add_action('rest_api_init', function () {
-  register_rest_route('pbot/v1', '/voice/twilio', [
-    'methods'  => 'POST',
-    'callback' => 'probot_twilio_voice_webhook',
-    'permission_callback' => '__return_true',
-  ]);
+    // GitHub Issue Configuration
+    register_setting('pbot_answering', 'pbot_gh_issue_proxy_enabled', ['type' => 'boolean', 'default' => 0]);
 });
 
 /**
- * Twilio Voice Webhook MVP:
- * - Gated by Product Key tier (Starter+).
- * - Greets caller, gathers speech for 10s, emails the transcript-ish (Twilio SpeechResult),
- *   and consumes 1 phone credit via License Server.
- * - Later: replace with OpenAI Realtime for full AI conversations/live transfer.
+ * 2. SYNC CONFIGURATION TO VPS
+ * Pushes answering and issue configurations to the VPS brain dynamically.
  */
-function probot_twilio_voice_webhook(\WP_REST_Request $req) {
-  // Basic config
-  $enabled = (bool) get_option('pbot_answering_enabled', 0);
-  $sid     = trim((string) get_option('pbot_twilio_sid', ''));
-  $token   = trim((string) get_option('pbot_twilio_token', ''));
-  $email   = sanitize_email(get_option('pbot_answering_notify_email',''));
+function pbot_sync_answering_config_to_vps() {
+    $vps_url = untrailingslashit(get_option('pbot_vps_url'));
+    if (empty($vps_url)) return;
 
-  // License check
-  $lic = function_exists('pbot_license_check') ? pbot_license_check() : ['valid'=>false,'tier'=>'free','unlimited'=>false,'left'=>0];
-  $is_paid = !empty($lic['valid']) && in_array(($lic['tier'] ?? 'free'), ['starter','pro'], true);
-  if (!$enabled || !$is_paid || $sid === '' || $token === '') {
-    // Return minimal TwiML saying service unavailable
-    return new \WP_REST_Response(
-      "<?xml version=\"1.0\" encoding=\"UTF-8\"?><Response><Say>AI answering is unavailable on this line.</Say></Response>",
-      200,
-      ['Content-Type' => 'text/xml; charset=UTF-8']
-    );
-  }
+    $payload = [
+        'answering_enabled' => get_option('pbot_answering_enabled'),
+        'twilio_number'     => get_option('pbot_twilio_number'),
+        'forward_to'        => get_option('pbot_answering_forward_to'),
+        'greeting'          => get_option('pbot_answering_greeting'),
+        'issue_proxy'       => get_option('pbot_gh_issue_proxy_enabled'),
+        'notify_email'      => get_option('pbot_answering_notify_email')
+    ];
 
-  // Twilio signature validation (optional, recommended)
-  // NOTE: Twilio sends X-Twilio-Signature; you can validate with $token if you want.
-  // For MVP we skip strict validation.
+    wp_remote_post($vps_url . '/secretary/config-sync', [
+        'method'    => 'POST',
+        'timeout'   => 15,
+        'sslverify' => false, // Protocol Bridge: HTTPS -> HTTP
+        'headers'   => [
+            'Content-Type'      => 'application/json',
+            'X-Pbot-Secret-Key' => get_option('pbot_secret_key')
+        ],
+        'body' => wp_json_encode($payload)
+    ]);
+}
 
-  $from   = sanitize_text_field($req->get_param('From'));
-  $to     = sanitize_text_field($req->get_param('To'));
-  $digits = sanitize_text_field($req->get_param('Digits')); // if keypad used
-  $speech = sanitize_text_field($req->get_param('SpeechResult')); // when Gather input="speech" returns
-  $step   = sanitize_text_field($req->get_param('step') ?: '');
+// Trigger sync when answering settings are updated
+add_action('update_option_pbot_answering_enabled', 'pbot_sync_answering_config_to_vps');
+add_action('update_option_pbot_gh_issue_proxy_enabled', 'pbot_sync_answering_config_to_vps');
 
-  // STEP 2: After speech gather, send “message” and spend credit
-  if ($step === 'gathered') {
-    if ($email) {
-      $body = "New AI Answering message:\n\nFrom: {$from}\nTo: {$to}\n\nHeard: {$speech}\n\nTime: ".gmdate('c');
-      wp_mail($email, 'ProBot Call Message', $body);
+/**
+ * 3. REST API: PROXY ENDPOINTS
+ */
+add_action('rest_api_init', function () {
+    // Twilio Voice Webhook
+    register_rest_route('pbot/v1', '/voice/twilio', [
+        'methods'             => 'POST',
+        'callback'            => 'pbot_proxy_twilio_voice',
+        'permission_callback' => '__return_true',
+    ]);
+
+    // GitHub Issue Webhook Proxy (WP acts as middleman)
+    register_rest_route('pbot/v1', '/gh/webhook', [
+        'methods'             => 'POST',
+        'callback'            => 'pbot_proxy_github_issues',
+        'permission_callback' => '__return_true',
+    ]);
+});
+
+/**
+ * TWILIO VOICE PROXY
+ * Gathers speech and forwards it to the VPS Chat route with Voice Context.
+ */
+function pbot_proxy_twilio_voice(\WP_REST_Request $req) {
+    $vps_url = untrailingslashit(get_option('pbot_vps_url'));
+    $enabled = get_option('pbot_answering_enabled');
+    $step    = $req->get_param('step') ?: '';
+
+    if (!$enabled || empty($vps_url)) {
+        return new \WP_REST_Response('<?xml version="1.0" encoding="UTF-8"?><Response><Say>Service unavailable.</Say></Response>', 200, ['Content-Type' => 'text/xml']);
     }
 
-    // Spend 1 phone credit (if your license server supports it)
-    // Optional: only if not unlimited
-    if (empty($lic['unlimited'])) {
-      // If your client has a helper to call the license server, use it here.
-      // Otherwise, do nothing; server patch below adds /usage/increment with type=voice.
-      // Example (pseudo): pbls_increment_usage('voice', 1);
+    // Step 2: Handle gathered speech by proxying to VPS
+    if ($step === 'gathered') {
+        $speech = $req->get_param('SpeechResult');
+        
+        $response = wp_remote_post($vps_url . '/secretary/chat', [
+            'timeout'   => 30,
+            'sslverify' => false,
+            'headers'   => [
+                'Content-Type'      => 'application/json',
+                'X-Pbot-Secret-Key' => get_option('pbot_secret_key')
+            ],
+            'body' => wp_json_encode([
+                'message'      => $speech,
+                'is_voice'     => true, // Signal Voice context to ai-service.ts
+                'site_context' => 'Inbound Phone Call to ' . get_bloginfo('name')
+            ])
+        ]);
+
+        $reply = "I'm sorry, I couldn't process your request.";
+        if (!is_wp_error($response)) {
+            $data = json_decode(wp_remote_retrieve_body($response), true);
+            $reply = $data['reply'] ?? $reply;
+        }
+
+        $xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><Response><Say>{$reply}</Say><Hangup/></Response>";
+        return new \WP_REST_Response($xml, 200, ['Content-Type' => 'text/xml']);
     }
 
-    $xml = <<<XML
-<?xml version="1.0" encoding="UTF-8"?>
-<Response>
-  <Say>Thanks, we've got your message. Someone will follow up shortly. Goodbye.</Say>
-  <Hangup/>
-</Response>
-XML;
-    return new \WP_REST_Response($xml, 200, ['Content-Type'=>'text/xml; charset=UTF-8']);
-  }
+    // Step 1: Initial Greeting
+    $greeting = get_option('pbot_answering_greeting', 'Hello. Please state your name and the reason for your call.');
+    $gatherUrl = rest_url('pbot/v1/voice/twilio') . '?step=gathered';
+    
+    $xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><Response><Say>{$greeting}</Say><Gather input=\"speech\" action=\"{$gatherUrl}\" method=\"POST\" timeout=\"5\"/></Response>";
+    return new \WP_REST_Response($xml, 200, ['Content-Type' => 'text/xml']);
+}
 
-  // STEP 1: Greet + Gather speech
-  $gatherUrl = rest_url('pbot/v1/voice/twilio') . '?step=gathered';
-  $xml = <<<XML
-<?xml version="1.0" encoding="UTF-8"?>
-<Response>
-  <Say>Hi! Thanks for calling. Please tell me briefly what you need, and then stop speaking.</Say>
-  <Gather input="speech" action="{$gatherUrl}" method="POST" timeout="5" speechTimeout="auto"/>
-  <Say>Sorry, I didn't catch that. Please call again.</Say>
-</Response>
-XML;
-  return new \WP_REST_Response($xml, 200, ['Content-Type'=>'text/xml; charset=UTF-8']);
+/**
+ * GITHUB ISSUE PROXY
+ * Forwards GitHub Issue events to the VPS Brain for article generation/processing.
+ */
+function pbot_proxy_github_issues(\WP_REST_Request $req) {
+    $vps_url = untrailingslashit(get_option('pbot_vps_url'));
+    if (empty($vps_url)) return new \WP_Error('offline', 'VPS Unavailable', ['status' => 503]);
+
+    // Simply forward the entire GitHub payload to the VPS
+    $response = wp_remote_post($vps_url . '/secretary/webhook/github', [
+        'method'    => 'POST',
+        'timeout'   => 30,
+        'sslverify' => false,
+        'headers'   => [
+            'Content-Type'             => 'application/json',
+            'X-GitHub-Event'           => $req->get_header('X-GitHub-Event'),
+            'X-Hub-Signature-256'      => $req->get_header('X-Hub-Signature-256'),
+            'X-Pbot-Secret-Key'        => get_option('pbot_secret_key')
+        ],
+        'body' => $req->get_body()
+    ]);
+
+    if (is_wp_error($response)) {
+        return new \WP_REST_Response(['success' => false, 'error' => $response->get_error_message()], 500);
+    }
+
+    return new \WP_REST_Response(json_decode(wp_remote_retrieve_body($response)), 200);
 }

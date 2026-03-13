@@ -7,18 +7,22 @@
     <form method="post" action="options.php">
       <?php settings_fields('pbot_responses'); ?>
       <div class="pbot-row">
-        <label><strong>Response Source</strong></label>
+        <label><strong>Response Engine</strong></label>
         <label>
-          <input type="radio" name="pbot_intents_source" value="packaged" <?php checked($source,'packaged'); ?> />
-          Packaged JSON (<?php echo esc_html($packaged_url); ?>)
+          <input type="radio" name="pbot_knowledge_source" value="packaged" <?php checked(get_option('pbot_knowledge_source', 'manual'),'packaged'); ?> />
+          Packaged JSON
         </label>
         <label>
-          <input type="radio" name="pbot_intents_source" value="manual" <?php checked($source,'manual'); ?> />
-          Manual (use the JSON below)
+          <input type="radio" name="pbot_knowledge_source" value="manual" <?php checked(get_option('pbot_knowledge_source', 'manual'),'manual'); ?> />
+          Manual JSON
+        </label>
+        <label>
+          <input type="radio" name="pbot_knowledge_source" value="brain" <?php checked(get_option('pbot_knowledge_source', 'manual'),'brain'); ?> />
+          <strong>AI Brain</strong>
         </label>
       </div>
 
-      <p class="pbot-muted">When set to “Manual”, the front-end loads JSON from Admin-AJAX. When “Packaged”, it uses the <code>assets/json/intents.json</code> shipped with this plugin.</p>
+      <p class="pbot-muted">When set to "AI Brain", the bot checks local JSON first for speed, then hands off complex queries to the Llama 3.1 VPS.</p>
 
       <h2 style="margin-top:18px;">Manual JSON</h2>
       <p class="pbot-muted">Paste a full JSON object (<code>{ help, intents: [...] }</code>) or just an array (<code>[...]</code>).</p>
@@ -34,15 +38,46 @@
 
   <!-- Set Greeting -->
   <div class="pbot-card">
-    <h2 style="margin-top:0;">Set Greeting</h2>
-    <p class="pbot-muted">Updates/creates the <code>__open__</code> intent in Manual JSON.</p>
-    <div class="pbot-row">
-      <textarea id="pbot_greeting_text" class="pbot-mono" style="width:min(520px,100%);min-height:120px" placeholder="Hi there! I’m your ProBot Assistant..."><?php
-        echo esc_textarea(get_option('pbot_greeting_text',''));
-      ?></textarea>
-    </div>
-    <div class="pbot-actions-bar">
-      <button type="button" class="button" id="pbot_set_greeting_btn">Make it the greeting</button>
+    <h2 style="margin-top:0;">Set Greeting & Intelligence</h2>
+    <p class="pbot-muted">Updates the <code>__open__</code> intent and tunes response timing.</p>
+    
+    <div style="display: flex; gap: 30px; align-items: flex-start; margin-top: 15px;">
+      <div style="flex: 1;">
+        <textarea id="pbot_greeting_text" class="pbot-mono" style="width:100%; min-height:120px" placeholder="Hi there! I’m your ProBot Assistant..."><?php
+          echo esc_textarea(get_option('pbot_greeting_text',''));
+        ?></textarea>
+        <div class="pbot-actions-bar" style="margin-top: 10px;">
+          <button type="button" class="button" id="pbot_set_greeting_btn">Make it the greeting</button>
+        </div>
+      </div>
+
+      <div style="width: 280px; padding: 15px; background: #f9f9f9; border-radius: 8px; border: 1px solid #eee;">
+        <form method="post" action="options.php">
+          <?php settings_fields('pbot_responses'); ?>
+          
+          <div class="pbot-row pbot-row-stacked" style="margin-bottom: 15px;">
+            <label for="pbot_match_threshold"><strong>Fuzzy match threshold</strong></label>
+            <input type="number" id="pbot_match_threshold" name="pbot_match_threshold"
+                   class="pbot-num-mid pbot-auto-num"
+                   min="0" max="1" step="0.01"
+                   value="<?php echo esc_attr($thresh); ?>" />
+            <div class="pbot-muted" style="font-size: 11px;">0 = loose, 1 = strict</div>
+          </div>
+
+          <div class="pbot-row pbot-row-stacked">
+            <label for="pbot_greeting_delay_ms"><strong>Greeting delay (ms)</strong></label>
+            <input type="number" id="pbot_greeting_delay_ms" name="pbot_greeting_delay_ms"
+                   class="pbot-num-mid pbot-auto-num"
+                   min="0" step="50"
+                   value="<?php echo esc_attr($gDelay); ?>" />
+            <div class="pbot-muted" style="font-size: 11px;">Min typing-dots time.</div>
+          </div>
+
+          <div style="margin-top: 15px; padding-top: 10px; border-top: 1px solid #ddd;">
+            <?php submit_button('Save Intelligence', 'secondary', 'submit', false); ?>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
 
@@ -133,6 +168,9 @@
       <p class="pbot-muted">This will store the file contents in “Manual JSON” above and set the source to Manual.</p>
     </form>
   </div>
+
+  <?php if (function_exists('pbot_render_knowledge_ingestion_section')) pbot_render_knowledge_ingestion_section(); ?>
+
 </div>
 
 <!-- Inline JS specific to this page (kept here like before; could be moved later) -->
