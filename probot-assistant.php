@@ -159,7 +159,7 @@ add_action('wp_enqueue_scripts', function () {
   $js_rel  = 'assets/frontend/probot-assistant.js';
   
   // Hard version bust for Beta 3 Cross-Browser Sync
-  $ver = probot_asst_asset_ver($js_rel) . '.1608'; 
+  $ver = probot_asst_asset_ver($js_rel) . '.1609'; 
 
   wp_enqueue_style('probot-assistant-css', pbot_url($css_rel), array(), $ver);
   wp_enqueue_script('probot-assistant-js', pbot_url($js_rel), array('jquery'), $ver, true);
@@ -243,7 +243,7 @@ add_action('admin_enqueue_scripts', function($hook){
 
   if ( ! $is_probot_screen && ! $is_plugins_list ) return;
 
-  $ver = probot_asst_asset_ver('assets/admin/probot-admin.js') . '.1608';
+  $ver = probot_asst_asset_ver('assets/admin/probot-admin.js') . '.1609';
 
   wp_enqueue_style('pbot-admin', pbot_url('assets/admin/probot-admin.css'), array(), $ver);
   if ( $is_probot_screen ) {

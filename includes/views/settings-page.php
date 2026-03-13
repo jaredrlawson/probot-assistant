@@ -286,7 +286,9 @@
           <div class="pbot-preview-stage" id="pbot-preview-stage">
             <div class="pbot-mini-teaser" id="pbot-mini-teaser"><?php echo esc_html($toastMsg ?: 'Hi there!'); ?></div>
             <div class="pbot-mini-panel" id="pbot-mini-panel" style="opacity: 0; transform: translateY(10px) scale(0.95);">
-              <div class="pbot-mini-topbar"></div>
+              <div class="pbot-mini-topbar">
+                <div style="position: absolute; right: 5px; top: 4px; width: 14px; height: 14px; border-radius: 3px; background: #eee; display: flex; align-items: center; justify-content: center; font-size: 8px; color: #666; border: 1px solid #ddd;">×</div>
+              </div>
             </div>
             <div class="pbot-mini-bubble" id="pbot-mini-bubble">🤖</div>
             <div class="pbot-preview-footer"></div>

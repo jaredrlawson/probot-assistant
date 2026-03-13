@@ -83,7 +83,8 @@
       teaserFg:   document.getElementById('pbot_toast_text_color'),
       pulseOn:    document.getElementById('pbot_pulse_enabled'),
       teaserOn:   document.getElementById('pbot_teaser_enabled'),
-      bubbleIcon: document.getElementById('pbot_bubble_icon')
+      bubbleIcon: document.getElementById('pbot_bubble_icon'),
+      bubblePos:  document.querySelectorAll('input[name="pbot_bubble_position"]')
     };
 
     function update() {
@@ -102,6 +103,20 @@
 
       if (bubble && inputs.pulseOn) {
         bubble.classList.toggle('is-pulsing', inputs.pulseOn.checked);
+      }
+
+      // Handle Position
+      let currentPos = 'right';
+      inputs.bubblePos.forEach(rb => { if (el = rb, el.checked) currentPos = el.value; });
+
+      if (currentPos === 'left') {
+          bubble.style.right = 'auto'; bubble.style.left = '15px';
+          panel.style.right = 'auto';  panel.style.left = '15px';
+          teaser.style.right = 'auto'; teaser.style.left = '65px';
+      } else {
+          bubble.style.left = 'auto';  bubble.style.right = '15px';
+          panel.style.left = 'auto';   panel.style.right = '15px';
+          teaser.style.left = 'auto';  teaser.style.right = '65px';
       }
     }
 
