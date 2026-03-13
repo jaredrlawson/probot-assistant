@@ -24,6 +24,10 @@ add_action('admin_init', function () {
     register_setting('pbot_writer_settings', 'pbot_writer_ai_category',   ['type'=>'integer','default'=>1]);
     register_setting('pbot_writer_settings', 'pbot_writer_schedule',      ['type'=>'string', 'default'=>'monthly']);
     register_setting('pbot_writer_settings', 'pbot_writer_monthly_limit', ['type'=>'integer','default'=>1]);
+    register_setting('pbot_writer_settings', 'pbot_billing_route',        ['type'=>'string', 'default'=>'api']);
+    register_setting('pbot_writer_settings', 'pbot_writer_include_outline', ['type'=>'integer','default'=>1]);
+    register_setting('pbot_writer_settings', 'pbot_writer_include_meta',    ['type'=>'integer','default'=>1]);
+    register_setting('pbot_writer_settings', 'pbot_writer_publish_immediately', ['type'=>'integer','default'=>0]);
 });
 
 /**
