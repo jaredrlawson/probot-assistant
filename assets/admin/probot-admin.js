@@ -121,6 +121,12 @@
     // Bind all inputs
     Object.values(inputs).forEach(el => {
       if (!el) return;
+      
+      if (el instanceof NodeList) {
+          el.forEach(node => node.addEventListener('change', update));
+          return;
+      }
+
       const ev = el.type === 'checkbox' || el.type === 'radio' ? 'change' : 'input';
       el.addEventListener(ev, update);
     });
